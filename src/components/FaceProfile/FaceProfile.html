@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Face Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="./FaceProfile.css" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: 'Open Sans';
+      src: local('Open Sans');
+    }
+
+    body {
+      margin: 0;
+      background: #ffffff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="face-profile-main">
+    <div class="fcp-top">
+      <!-- Header 1 -->
+      <div class="header-1">
+        <img class="hamberger-icon" src="../../assets/icons/hamberger.svg" alt="menu" />
+        <img class="allergan-icon" src="../../assets/logos/logo-allergan-aesthetics.svg" alt="logo" />
+      </div>
+
+      <!-- Options (burger menu) -->
+      <div class="options" style="display:none;">
+        <img class="op-left-wave" src="../../assets/icons/left-wave.svg" alt="left wave" />
+        <img class="op-right-wave" src="../../assets/icons/right-wave.svg" alt="right wave" />
+
+        <div class="op-1">
+          <div class="op-1-left">
+            <h1>Anne,<span class="age"> age 54</span></h1>
+            <img data-person="Anne" data-position="center" src="../../assets/icons/blue_arrow.svg" alt="arrow" />
+          </div>
+          <div class="op-1-right">
+            <h1>Olivia,<span class="age"> age 42</span></h1>
+            <img data-person="Olivia" data-position="center" src="../../assets/icons/blue_arrow.svg" alt="arrow" />
+          </div>
+        </div>
+        <div class="op-2">
+          <div class="op-2-left">
+            <h1>Elisabeth,<span class="age"> age 46</span></h1>
+            <img data-person="Elisabeth" data-position="center" src="../../assets/icons/blue_arrow.svg" alt="arrow" />
+          </div>
+          <div class="op-2-right">
+            <h1>Sonya,<span class="age"> age 50</span></h1>
+            <img data-person="Sonya" data-position="center" src="../../assets/icons/blue_arrow.svg" alt="arrow" />
+          </div>
+        </div>
+        <div class="op-3">
+          <div class="op-3-left">
+            <h1>Katerina,<span class="age"> age 38</span></h1>
+            <img data-person="Katerina" data-position="center" src="../../assets/icons/blue_arrow.svg" alt="arrow" />
+          </div>
+          <div class="op-3-right">
+            <h1>Sunny,<span class="age"> age 61</span></h1>
+            <img data-person="Sunny" data-position="center" src="../../assets/icons/blue_arrow.svg" alt="arrow" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Header-2 (when options hidden) -->
+      <div class="header-2">
+        <img src="../../assets/icons/left-wave.svg" class="left-wave" alt="left wave" />
+        <img src="../../assets/icons/right-wave.svg" class="right-wave" alt="right wave" />
+        <div class="header-2-left">
+          <img class="left-arrow" src="../../assets/icons/icon-arrow-left.svg" alt="left" />
+          <h1 class="selected-name">Anne,<span class="age"> age 54</span></h1>
+        </div>
+        <div class="header-2-right">
+          <img class="right-arrow" src="../../assets/icons/icon-arrow-right.svg" alt="right" />
+        </div>
+      </div>
+
+      <!-- Faces -->
+      <div class="faces">
+
+        <!-- Face icons (angles) -->
+        <div class="face-icons">
+          <div class="face-icon" data-pos="leftMost">
+            <img src="../../assets/images/face-profile-icons/face-icon-leftmost-1.svg" alt="leftMost" />
+          </div>
+          <div class="face-icon" data-pos="left">
+            <img src="../../assets/images/face-profile-icons/face-icon-side-left-1.svg" alt="left" />
+          </div>
+          <div class="face-icon active" data-pos="center">
+            <img src="../../assets/images/face-profile-icons/face-icon-straight-1.svg" alt="center" />
+          </div>
+          <div class="face-icon" data-pos="right">
+            <img src="../../assets/images/face-profile-icons/face-icon-side-right-1.svg" alt="right" />
+          </div>
+          <div class="face-icon" data-pos="rightMost">
+            <img src="../../assets/images/face-profile-icons/face-icon-rightmost-1.svg" alt="rightMost" />
+          </div>
+        </div>
+
+        <!-- Four images grid with per-tile zoom UI -->
+        <div class="face-images">
+          <div class="face-tile">
+            <img class="zoom-all-btn" data-img="0" src="../../assets/icons/zoomAll.svg" alt="zoom" />
+            <img class="faces-images img-0" src="" alt="Before" />
+            <div class="tile-zoom-pill" aria-label="Zoom controls">
+              <span class="tile-zoom-part tile-zoom-plus">+</span>
+              <span class="tile-zoom-sep">|</span>
+              <span class="tile-zoom-part tile-zoom-minus">-</span>
+            </div>
+
+            <div class="face-image-text">
+              <p>Before</p>
+              <p>&nbsp;</p>
+            </div>
+          </div>
+
+          <div class="face-tile">
+            <img class="zoom-all-btn" data-img="1" src="../../assets/icons/zoomAll.svg" alt="zoom" />
+            <img class="faces-images img-1" src="" alt="Immediately after" />
+
+
+            <div class="face-image-text">
+              <p>Immediately after</p>
+              <p>HArmonyCa™</p>
+            </div>
+          </div>
+          <div id="tooltip"
+            style="position:absolute; display:none; z-index:10000; background:#fff; border-radius:6px; padding:8px; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+            <img id="tooltip-img" src="" alt="Product Volume" style="max-width:200px; max-height:150px;">
+          </div>
+
+
+          <div class="face-tile">
+            <img class="zoom-all-btn" data-img="2" src="../../assets/icons/zoomAll.svg" alt="zoom" />
+            <img class="faces-images img-2" src="" alt="3 months after" />
+
+            <div class="face-image-text">
+              <p>3 months after</p>
+              <p>HArmonyCa™</p>
+            </div>
+          </div>
+
+          <div class="face-tile">
+            <img class="zoom-all-btn" data-img="3" src="../../assets/icons/zoomAll.svg" alt="zoom" />
+            <img class="faces-images img-3" src="" alt="4 months after" />
+
+            <div class="face-image-text">
+              <p>4 months after</p>
+              <p>HArmonyCa™</p>
+            </div>
+          </div>
+        </div>
+      </div> <!-- /.faces -->
+    </div> 
+    <!-- /.fcp-top -->
+
+    <!-- Tests -->
+    <div class="face-test">
+      <div class="test-image-container">
+        <p class="p">Smile Test</p>
+        <div class="test-image-wrapper" data-slider-index="0">
+          <img class="image-before smile-before" src="" alt="Smile Before" />
+          <img class="image-after smile-after" src="" alt="Smile After" style="clip-path: inset(0 0 0 250px);" />
+          <img class="slider-thumb" src="../../assets/icons/slider.svg" alt="slider" style="left: 250px;" />
+        </div>
+      </div>
+
+      <div class="test-image-container">
+        <p>Pinch Test</p>
+        <div class="test-image-wrapper" data-slider-index="1">
+          <img class="image-before pinch-before" src="" alt="Pinch Before" />
+          <img class="image-after pinch-after" src="" alt="Pinch After" style="clip-path: inset(0 0 0 250px);" />
+          <img class="slider-thumb" src="../../assets/icons/slider.svg" alt="slider" style="left: 250px;" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Test -->
+    <div class="video-test">
+      <div class="vt-img">
+        <p>Video Test</p>
+        <div class="vt-content-container">
+          <video class="video-1" src="" controls autoplay></video>
+          <video class="video-2" src="" controls autoplay></video>
+        </div>
+      </div>
+
+      <div class="product_and_volume">
+        <p>Product and Volume</p>
+        <img src="../../assets/icons/product_and_volume_icon.svg" alt="p&v" />
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <!-- <div class="disclaimer"> -->
+    <!-- <img src="../../assets/texts/disclaimer.svg" alt="disclaimer" /> -->
+    <!-- <h1>Disclaimer</h1>
+       <div class="disclaimer-text">
+       <p>'Before' photo was taken before all treatment. The first 'after' photo was taken immediately after HArmonyCa™ treatment. The second 'after' photo was taken 3 </p>
+       <p>months after HArmonyCa™ treatment. The third 'after' photo was taken 4 months after HArmonyCa™ treatment and 1 month after JUVÉDERM® treatment.</p>
+       <div>
+        <div class="disclaimer-text">
+       <p>'Before' video was taken before all treatment. The 'after' video was taken 3 months after HArmonyCa™ treatment.</p>
+       <div>
+        <div class="disclaimer-text">
+       <p>Our model, Anne, received a total of 4.6 mL of HArmonyCa™ in the cheeks and jawline, then 12 weeks later received a total of 14.5 mL of JUVÉDERM® in the cheeks,</p>
+       <p>jawline, lips, marionette lines,nasolabial folds and tear trough.</p>
+       <div>
+       <div class="disclaimer-text">
+        <p>Disclaimers: Individual results may vary.</p>
+       <div>
+        <div class="disclaimer-text">
+        <p>Patients received free treatment and follow up, payment for their participation and their expenses paid for. </p>
+          </div>
+          <div class="disclaimer-text">
+        <p>© Allergan Aesthetics</p>
+            </div>
+      </div>
+  </div> -->
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      <h1>Disclaimer</h1>
+      <div class="disclaimer-body"></div>
+    </div>
+
+    <script src="./FaceProfile.js"></script>
+</body>
+
+</html>
