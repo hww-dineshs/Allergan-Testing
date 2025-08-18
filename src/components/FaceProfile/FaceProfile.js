@@ -511,9 +511,6 @@ const JUV_CAPTIONS = [
 //   },
 // };
 
-const ENABLED_PROFILES = new Set(['Anne']);
-
-
 // Static caption sets by profile group
 const CAPTION_SETS = {
   hca: { // Anne, Elisabeth, Olivia
@@ -531,6 +528,11 @@ const GROUP_HCA = new Set(['Anne', 'Elisabeth', 'Olivia']);
 const GROUP_HCA_JUVE = new Set(['Katerina', 'Sonya', 'Sunny']);
 
 
+// bump ™ / ® size a touch inside captions & disclaimers
+document.head.insertAdjacentHTML(
+  'beforeend',
+  '<style>.face-image-text sup, .disclaimer sup{font-size:.9em;line-height:0;}</style>'
+);
 
 // --- STATE ---
 let selectedIndex = 0;
@@ -595,27 +597,49 @@ const pvTooltip = (() => {
     position:absolute; display:none; z-index:10000;
     background:#fff; border-radius:6px; padding:8px;
     box-shadow:0 2px 8px rgba(0,0,0,0.2);
+    max-width: 240px; /* Limit the width of the tooltip */
   `;
   const img = document.createElement('img');
   img.id = 'pv-tooltip-img';
   img.alt = 'Product Volume';
-  img.style.cssText = 'max-width:240px; max-height:180px; display:block;';
+  img.style.cssText = 'max-width:100%; height:auto; display:block;';
   node.appendChild(img);
   document.body.appendChild(node);
 
+  const show = (src, iconElement) => {
+    if (!src || !iconElement) return;
+    img.src = src;
+
+    const iconRect = iconElement.getBoundingClientRect();
+    const nodeRect = node.getBoundingClientRect();
+
+    let top = iconRect.bottom + window.scrollY + 5;
+    let left = iconRect.left + window.scrollX + (iconRect.width / 2) - (nodeRect.width / 2);
+
+    // Adjust if the tooltip goes off-screen
+    if (left < 0) {
+      left = 5;
+    }
+    if (left + nodeRect.width > window.innerWidth) {
+      left = window.innerWidth - nodeRect.width - 5;
+    }
+    if (top + nodeRect.height > window.innerHeight) {
+      top = iconRect.top + window.scrollY - nodeRect.height - 5;
+    }
+
+
+    node.style.top = `${top}px`;
+    node.style.left = `${left}px`;
+    node.style.display = 'block';
+  };
+
+  const hide = () => {
+    node.style.display = 'none';
+  };
+
   return {
-    show(src, x, y) {
-      img.src = src || '';
-      if (!src) return;
-      node.style.left = (x + 12) + 'px';
-      node.style.top = (y + 12) + 'px';
-      node.style.display = 'block';
-    },
-    move(x, y) {
-      node.style.left = (x + 12) + 'px';
-      node.style.top = (y + 12) + 'px';
-    },
-    hide() { node.style.display = 'none'; }
+    show,
+    hide
   };
 })();
 
@@ -631,12 +655,16 @@ function makeInfoIcon() {
   icon.alt = 'Info';
   icon.className = 'info-icon';
   icon.style.cssText = 'width:16px;height:16px;margin-left:6px;cursor:pointer;vertical-align:middle;';
+
   icon.addEventListener('mouseenter', (e) => {
     const src = PRODUCT_VOLUME_IMG[selectedPerson];
-    pvTooltip.show(src, e.pageX, e.pageY);
+    pvTooltip.show(src, e.target);
   });
-  icon.addEventListener('mousemove', (e) => pvTooltip.move(e.pageX, e.pageY));
-  icon.addEventListener('mouseleave', pvTooltip.hide);
+
+  icon.addEventListener('mouseleave', () => {
+    pvTooltip.hide();
+  });
+
   return icon;
 }
 
@@ -712,25 +740,30 @@ function updateInfoTooltip() {
 // })();
 
 // Product sheet modal
+// Product sheet modal
 const modal = (() => {
   const overlay = document.createElement('div');
-  overlay.style.cssText = `position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:9999;`;
+  overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:9999;';
   const box = document.createElement('div');
-  box.style.cssText = `width:720px; height:600px; background:#fff; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center;padding: 20px;`;
+  box.style.cssText = 'width:720px; height:600px; background:#fff; position:relative; overflow:visible; display:flex; align-items:center; justify-content:center; padding: 20px;';
   const img = document.createElement('img');
   // REMOVE the hardcoded src; we'll set it dynamically
   img.alt = 'product sheet';
   img.style.maxWidth = '100%';
   img.style.maxHeight = '100%';
-
   const close = document.createElement('button');
-  close.textContent = '×'; close.setAttribute('aria-label', 'Close');
-  close.style.cssText = `position:absolute; top:6px; right:10px; font-size:24px; line-height:1; background:transparent; border:none; cursor:pointer;`;
-
-  box.appendChild(img); box.appendChild(close); overlay.appendChild(box); document.body.appendChild(overlay);
+  const closeIcon = document.createElement('img');
+  closeIcon.src = A('icons/cross_button.svg'); // ../../assets/icons/cross_button.svg
+  closeIcon.alt = '';
+  close.appendChild(closeIcon);
+  close.setAttribute('aria-label', 'Close');
+  close.style.cssText = 'position:absolute; top:0; right:0; transform: translate(14px, -12px); font-size:24px; line-height:1; background:transparent; border:none; cursor:pointer;';
+  box.appendChild(img);
+  box.appendChild(close);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
   close.addEventListener('click', () => (overlay.style.display = 'none'));
-
   // NEW: set image based on profile
   function setPerson(name) {
     img.src = TABLE_IMAGES[name] || A('images/product_sheet.svg');
@@ -738,13 +771,13 @@ const modal = (() => {
   }
   // initialize to first profile so it's never empty
   setPerson(PROFILES[0].name);
-
   return {
     open: () => (overlay.style.display = 'flex'),
     close: () => (overlay.style.display = 'none'),
     setPerson, // expose setter
   };
 })();
+
 
 
 // Image preview modal (per-tile “zoomAll” icon)
@@ -763,17 +796,105 @@ const imgModal = (() => {
   img.alt = 'preview';
   img.style.cssText = `
   width: 100%; height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   border-radius: 10px;
 `;
 
+  // const close = document.createElement('button');
+  // close.className = 'img-modal-close'; // Use class for styling
+  // close.innerHTML = '&times;'; // Use times symbol for 'X'
+  // close.setAttribute('aria-label', 'Close');
   const close = document.createElement('button');
-  close.textContent = '×'; close.setAttribute('aria-label', 'Close');
-  close.style.cssText = `position:absolute; top:20px; right:10px; font-size:28px; line-height:1; background:transparent; color:black; border:none; cursor:pointer;`;
-  box.appendChild(img); box.appendChild(close); overlay.appendChild(box); document.body.appendChild(overlay);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
-  close.addEventListener('click', () => (overlay.style.display = 'none'));
-  return { open: (src) => { img.src = src; overlay.style.display = 'flex'; }, close: () => (overlay.style.display = 'none') };
+  close.className = 'img-modal-close'; // keep existing CSS hooks
+  close.setAttribute('aria-label', 'Close');
+
+  // use SVG icon instead of text
+  const closeIcon = document.createElement('img');
+  closeIcon.src = A('icons/cross_button.svg'); // ../../assets/icons/cross_button.svg
+  closeIcon.alt = '';                           // button already has aria-label
+  closeIcon.style.cssText = 'width:20px;height:20px;display:block;pointer-events:none;';
+  close.appendChild(closeIcon);
+
+
+  const prev = document.createElement('button');
+  prev.className = 'img-modal-nav img-modal-prev';
+  prev.innerHTML = '&#10094;'; // Left arrow
+  prev.setAttribute('aria-label', 'Previous image');
+
+  const next = document.createElement('button');
+  next.className = 'img-modal-nav img-modal-next';
+  next.innerHTML = '&#10095;'; // Right arrow
+  next.setAttribute('aria-label', 'Next image');
+
+  box.appendChild(img);
+  box.appendChild(close);
+  box.appendChild(prev);
+  box.appendChild(next);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  let currentIndex = 0;
+  const images = [];
+
+  const updateImage = () => {
+    img.src = images[currentIndex];
+  };
+
+  // overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
+  // Don't close on backdrop click anymore
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      e.stopPropagation(); // ignore outside clicks
+    }
+  });
+
+
+  // close.addEventListener('click', () => (overlay.style.display = 'none'));
+  close.addEventListener('click', () => {
+    overlay.style.display = 'none';
+    document.body.classList.remove('no-scroll'); // remove lock on X
+  });
+
+
+  prev.addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    updateImage();
+  });
+
+  next.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % images.length;
+    updateImage();
+  });
+  // Close via Esc; allow arrow keys for nav too
+  const onKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      overlay.style.display = 'none';
+      document.body.classList.remove('no-scroll');
+      document.removeEventListener('keydown', onKeyDown);
+    } else if (e.key === 'ArrowRight') {
+      next.click();
+    } else if (e.key === 'ArrowLeft') {
+      prev.click();
+    }
+  };
+
+  return {
+    open: (src, index) => {
+      images.length = 0; // Clear previous images
+      const personImages = Sources[selectedPerson][currentPosition];
+      for (let i = 0; i < 4; i++) {
+        images.push(personImages[i]);
+      }
+      currentIndex = index;
+      updateImage();
+      overlay.style.display = 'flex';
+      document.body.classList.add('no-scroll');   // <— ADD THIS LINE
+    },
+    close: () => {
+      overlay.style.display = 'none';
+      document.body.classList.remove('no-scroll'); // <— remove lock when closed programmatically
+    }
+  };
 })();
 
 // --- HELPERS ---
@@ -916,27 +1037,80 @@ function renderCaptions(personName) {
 
 
 
-function applyImages(person, position, opts = { updateVideos: true }) {
+function applyImages(person, position) {
   const arr = Sources[person][position];
-
-  // grid (the 4 tiles)
+  // grid
   el.faceImages.forEach((img, i) => (img.src = arr[i] || ''));
-
-  // tests (keep as you had it)
+  // tests (Anne has after-before order for smile)
   if (person === 'Anne') {
     el.smileAfter.src = arr[4]; el.smileBefore.src = arr[5];
   } else {
     el.smileBefore.src = arr[4]; el.smileAfter.src = arr[5];
   }
   el.pinchBefore.src = arr[6]; el.pinchAfter.src = arr[7];
-
-  // videos — update only if caller says so (i.e., on profile change)
-  if (opts.updateVideos) setVideosForPerson(person);
-
+  // videos
+  el.video1.src = arr[8]; el.video2.src = arr[9];
   // keep zoom level on swap
   applyZoomAll();
 }
 
+// function renderDisclaimer(name) {
+//   if (!el.disclaimerBody) return;
+
+//   const lines = (DISCLAIMERS[name] || '')
+//     .split('\n')
+//     .map(s => s.trim())
+//     .filter(Boolean);
+
+//   console.log("lines", lines);
+
+//   // token that matches JUVÉDERM® or JUVÉDERM<sup>®</sup>
+//   const JUV_TOKEN = String.raw`JUV(?:\u00C9|É)DERM(?:®|<sup>®<\/sup>)`;
+
+//   // paragraph-1 rules, profile-specific
+//   function applyBreaksFirstPara(html) {
+//     if (HCA_PROFILES.has(name)) {
+//       // “…taken 3 months …” -> “…taken 3<br>months …”
+//       // return html.replace(/taken 3\s+months/i, 'taken 3<br>months');
+//     }
+//     if (JUV_PROFILES.has(name)) {
+//       // A) put the break AFTER the period of the first sentence
+//       html = html.replace(
+//         new RegExp(String.raw`(1 month after ${JUV_TOKEN} treatment\.)\s+(The second)`, 'i'),
+//         '$1<br>$2'
+//       );
+//       // B) split second sentence before “and immediately …”
+//       html = html.replace(
+//         new RegExp(String.raw`(1 month after ${JUV_TOKEN} treatment)\s+and`, 'i'),
+//         '$1and'
+//       );
+//     }
+//     return html;
+//   }
+
+//   // paragraph-4 rule: “… JUVÉDERM … in the cheeks,” -> add <br> after “cheeks,”
+//   const CHEEKS = new RegExp(String.raw`(${JUV_TOKEN}\s+in the cheeks,)`, 'i');
+
+//   el.disclaimerBody.innerHTML = '';
+
+//   lines.forEach((orig, idx) => {
+//     let html = orig;
+
+//     if (idx === 0) html = applyBreaksFirstPara(html);
+//     // if (idx === 3) html = html.replace(CHEEKS, '$1<br>');
+
+//     const wrap = document.createElement('div');
+//     wrap.className = 'disclaimer-text';
+
+//     const p = document.createElement('p');
+//     // keep HTML when we inserted <br> or have <sup>®</sup>
+//     if (html.includes('<br>') || /<sup>/.test(html)) p.innerHTML = html;
+//     else p.textContent = html;
+
+//     wrap.appendChild(p);
+//     el.disclaimerBody.appendChild(wrap);
+//   });
+// }
 
 function renderDisclaimer(name) {
   if (!el.disclaimerBody) return;
@@ -946,14 +1120,22 @@ function renderDisclaimer(name) {
     .map(s => s.trim())
     .filter(Boolean);
 
+  console.log("lines", lines);
+
   // token that matches JUVÉDERM® or JUVÉDERM<sup>®</sup>
   const JUV_TOKEN = String.raw`JUV(?:\u00C9|É)DERM(?:®|<sup>®<\/sup>)`;
+
+  // replace ™ and ® with <sup>
+  function wrapSymbols(html) {
+    return html
+      .replace(/™/g, '<sup>™</sup>')
+      .replace(/®/g, '<sup>®</sup>');
+  }
 
   // paragraph-1 rules, profile-specific
   function applyBreaksFirstPara(html) {
     if (HCA_PROFILES.has(name)) {
-      // “…taken 3 months …” -> “…taken 3<br>months …”
-      return html.replace(/taken 3\s+months/i, 'taken 3<br>months');
+      // example rule left commented out
     }
     if (JUV_PROFILES.has(name)) {
       // A) put the break AFTER the period of the first sentence
@@ -964,13 +1146,13 @@ function renderDisclaimer(name) {
       // B) split second sentence before “and immediately …”
       html = html.replace(
         new RegExp(String.raw`(1 month after ${JUV_TOKEN} treatment)\s+and`, 'i'),
-        '$1<br>and'
+        '$1and'
       );
     }
     return html;
   }
 
-  // paragraph-4 rule: “… JUVÉDERM … in the cheeks,” -> add <br> after “cheeks,”
+  // paragraph-4 rule (optional)
   const CHEEKS = new RegExp(String.raw`(${JUV_TOKEN}\s+in the cheeks,)`, 'i');
 
   el.disclaimerBody.innerHTML = '';
@@ -978,21 +1160,26 @@ function renderDisclaimer(name) {
   lines.forEach((orig, idx) => {
     let html = orig;
 
+    // replace symbols
+    html = wrapSymbols(html);
+
     if (idx === 0) html = applyBreaksFirstPara(html);
-    if (idx === 3) html = html.replace(CHEEKS, '$1<br>');
+    // if (idx === 3) html = html.replace(CHEEKS, '$1<br>');
 
     const wrap = document.createElement('div');
     wrap.className = 'disclaimer-text';
 
     const p = document.createElement('p');
-    // keep HTML when we inserted <br> or have <sup>®</sup>
-    if (html.includes('<br>') || /<sup>/.test(html)) p.innerHTML = html;
+    // keep HTML when we inserted <br> or <sup>
+    if (/<(br|sup)>/.test(html)) p.innerHTML = html;
     else p.textContent = html;
 
     wrap.appendChild(p);
     el.disclaimerBody.appendChild(wrap);
   });
 }
+
+
 
 
 
@@ -1164,61 +1351,26 @@ function updateTestCaptions(personName) {
   });
 }
 
-function setVideosForPerson(name) {
-  const vids = Sources[name].center;
-  const v1 = vids[8], v2 = vids[9];
-
-  // use getAttribute to compare the raw src value
-  if (el.video1 && el.video1.getAttribute('src') !== v1) el.video1.src = v1;
-  if (el.video2 && el.video2.getAttribute('src') !== v2) el.video2.src = v2;
-}
-
 
 
 function changeImages(person, position) {
-  if (!ENABLED_PROFILES.has(person)) return;
-
-  const prevPerson = selectedPerson;
-  const prevPosition = currentPosition;                    // NEW
-
-  // consider it a change if person differs OR videos have no src yet (for first run)
-  const personChanged =
-    (person !== prevPerson) ||
-    !el.video1?.getAttribute('src') ||
-    !el.video2?.getAttribute('src');
-
-  const positionChanged = (position !== prevPosition);     // NEW
-
+  person = 'Anne'; // ← ensure we always use Anne
   selectedPerson = person;
   currentPosition = position;
-
   setHeaderName();
   setActiveFaceIcon();
-
-  // Reset zoom if profile changed OR face direction changed
-  if (personChanged || positionChanged) resetZoom();
-
-  // if only the face direction changed, don't touch videos
-  applyImages(person, position, { updateVideos: personChanged });
-
-  // things that depend only on the profile (not on face direction)
-  if (personChanged) {
-    updateTestCaptions(person);
-    renderDisclaimer(person);
-    renderCaptions(person);
-    updateVideoCaptions(person);
-    updateInfoTooltip(person);
-    if (modal && typeof modal.setPerson === 'function') modal.setPerson(person);
-  }
-
-  pan.x = 0; pan.y = 0;
+  resetZoom();                 // <--- add this
+  applyImages(person, position);
+  updateTestCaptions(person);   // <—— add this line
+  pan.x = 0;
+  pan.y = 0;
   applyZoomAll();
+  renderDisclaimer(person);
+  renderCaptions(person);     // <-- set the 2/3-line captions + place info icon
+  updateVideoCaptions(person); updateInfoTooltip(person);
   el.options.style.display = 'none';
   el.header2.style.display = 'flex';
 }
-
-
-
 
 
 // --- INIT ---
@@ -1238,14 +1390,18 @@ el.options.addEventListener('click', (e) => {
   const img = e.target.closest('img[data-person]');
   if (!img) return;
   const person = img.getAttribute('data-person');
+  if (person !== 'Anne') return; // ← NEW: ignore all but Anne
   const idx = PROFILES.findIndex((p) => p.name === person);
   if (idx !== -1) selectedIndex = idx;
   changeImages(person, 'center');
 });
 
 // --- HEADER ARROWS ---
-function nextProfile() { selectedIndex = (selectedIndex + 1) % PROFILES.length; changeImages(PROFILES[selectedIndex].name, 'center'); }
-function prevProfile() { selectedIndex = (selectedIndex - 1 + PROFILES.length) % PROFILES.length; changeImages(PROFILES[selectedIndex].name, 'center'); }
+// function nextProfile() { selectedIndex = (selectedIndex + 1) % PROFILES.length; changeImages(PROFILES[selectedIndex].name, 'center'); }
+// function prevProfile() { selectedIndex = (selectedIndex - 1 + PROFILES.length) % PROFILES.length; changeImages(PROFILES[selectedIndex].name, 'center'); }
+function nextProfile() { selectedIndex = 0; changeImages('Anne', currentPosition); }
+function prevProfile() { selectedIndex = 0; changeImages('Anne', currentPosition); }
+
 el.leftArrow.addEventListener('click', prevProfile);
 el.rightArrow.addEventListener('click', nextProfile);
 
@@ -1255,12 +1411,12 @@ if (el.faceIcons && el.faceIcons.length) {
     icon.addEventListener('click', () => {
       const pos = icon.getAttribute('data-pos');
       if (!pos) return;
-      // Do NOT mutate currentPosition here — let changeImages detect the change
-      changeImages(selectedPerson, pos);
+      currentPosition = pos;
+      setActiveFaceIcon();
+      changeImages(selectedPerson, currentPosition);
     });
   });
 }
-
 
 // --- SLIDERS (dynamic width for rotate) ---
 function setSlider(i, xPx) {
@@ -1406,7 +1562,7 @@ document.querySelector('.face-images').addEventListener('click', (e) => {
   if (!btn) return;
   const idx = Number(btn.getAttribute('data-img'));
   const imgEl = el.faceImages[idx];
-  if (imgEl && imgEl.src) imgModal.open(imgEl.src);
+  if (imgEl && imgEl.src) imgModal.open(imgEl.src, idx);
 });
 
 
@@ -1419,10 +1575,10 @@ document.querySelector('.face-images').addEventListener('click', (e) => {
 // }
 
 document.querySelector('.face-images').addEventListener('click', (e) => {
-  if (e.target.classList.contains('tile-zoom-plus')) {
+  if (e.target.classList.contains('tile-zoom-plus') && !e.target.classList.contains('disabled')) {
     zoomScale = Math.min(ZOOM_MAX, zoomScale + ZOOM_STEP);
     applyZoomAll();
-  } else if (e.target.classList.contains('tile-zoom-minus')) {
+  } else if (e.target.classList.contains('tile-zoom-minus') && !e.target.classList.contains('disabled')) {
     zoomScale = Math.max(ZOOM_MIN, zoomScale - ZOOM_STEP);
     applyZoomAll();
   }

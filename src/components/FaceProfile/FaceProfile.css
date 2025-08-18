@@ -158,6 +158,7 @@
 /* header-2 */
 .face-profile-main .fcp-top .header-2 {
   position: relative;
+  overflow: hidden;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -199,15 +200,17 @@
 }
 
 .face-profile-main .fcp-top .header-2 .left-wave {
-  left: 0;
-  height: 75px;
-  width: 310px;
+  left: -40px;
+  height: 130px;
+  width: 390px;
+  top: -40px;
 }
 
 .face-profile-main .fcp-top .header-2 .right-wave {
-  right: 0;
-  height: 75px;
-  width: 240px;
+  right: -20px;
+  height: 150px;
+  width: 261px;
+  top: -42px;
 }
 
 .face-profile-main .fcp-top .header-2 img {
@@ -273,29 +276,38 @@
 
 /* grid wrapper */
 .face-profile-main .fcp-top .faces .face-images {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  width: 80%;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   justify-content: center;
   align-items: center;
+  gap: 0px;
   margin-top: 20px;
+
 }
 
 /* each tile */
 .face-profile-main .fcp-top .faces .face-images .face-tile {
+  width: 100%;
   position: relative;
   overflow: hidden;
   /* keep scaled image inside */
-  padding-bottom: 68px;
+  /* padding-bottom: 68px; */
   /* reserve caption space */
+}
+
+.face-profile-main .fcp-top .faces .face-images .face-tile .face-img-container {
+  overflow: hidden;
+  border: 1px solid #E3E1E1;
 }
 
 /* the image itself */
 .face-profile-main .fcp-top .faces .face-images img.faces-images {
   display: block;
   /* width: 290px; */
-  max-width: 290px;
+  /* max-width: 290px; */
   width: 100%;
-  height: 300px;
+  height: 290px;
   object-fit: cover;
   transform-origin: center center;
   transition: transform 0.15s ease;
@@ -306,7 +318,7 @@
 
 /* caption band */
 .face-profile-main .fcp-top .faces .face-images .face-image-text {
-  position: absolute;
+  /* position: absolute; */
   left: 0;
   right: 0;
   bottom: 0;
@@ -315,12 +327,17 @@
   padding: 12px 16px 14px;
 }
 
+/* Tile captions under the four images — match Figma */
 .face-profile-main .fcp-top .faces .face-images .face-image-text p {
-  font-family: 'Open Sans', sans-serif;
-  font-size: 20px;
-  color: black;
+  font-family: "Bricolage Grotesque", "Open Sans", system-ui, sans-serif;
+  font-weight: 400;            /* Regular */
+  font-size: 18px;             /* Figma shows 14 */
+  line-height: normal;         /* Figma “Auto” */
+  letter-spacing: -0.04em;     /* Figma -4% */
+  color: #071D49;              /* Figma fill */
   text-align: left;
 }
+
 
 /* pan cursors */
 .face-profile-main .fcp-top .faces .face-images.can-pan {
@@ -382,10 +399,21 @@
   background: rgba(255, 255, 255, 0.75);
 }
 
+.face-profile-main .fcp-top .faces .face-images .face-tile .tile-zoom-part.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .face-profile-main .fcp-top .faces .face-images .face-tile .tile-zoom-sep {
   opacity: .55;
   pointer-events: none;
   color: #8C9096;
+}
+
+
+/* Disable scroll when modal is open */
+body.no-scroll {
+  overflow: hidden;
 }
 
 /* =======================
@@ -406,8 +434,9 @@
   flex-wrap: wrap;
   /* Allow test blocks to stack on smaller screens */
   justify-content: center;
+  align-items: center;
   align-items: flex-start;
-  gap: 40px;
+  gap: 15px;
   padding: 3rem;
   background-color: #F6F6F6;
 }
@@ -417,6 +446,7 @@
     flex-direction: column;
     /* Stack test blocks on smaller screens */
     justify-content: center;
+    align-items: center;
   }
 }
 
@@ -451,25 +481,42 @@
   }
 }
 
-.face-profile-main .test-image-container p {
+.face-profile-main .test-image-container h2,
+.face-profile-main .video-test .vt-img h2 {
+  font-family: "Bricolage Grotesque", "Open Sans", system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: #071D49;
   font-size: clamp(20px, 3vw, 30px);
-  font-family: 'Open Sans', sans-serif;
-  color: black;
   margin-bottom: 10px;
   text-align: start;
-  /* Centered title to match Figma */
 }
+
 
 .face-profile-main .test-image-wrapper {
   position: relative;
   /* width: 570px; */
   max-width: 570px;
   width: 100%;
-  height: 300px;
+  /* height: 300px; */
+  height: 450px;
   background-color: white;
   cursor: ew-resize;
   user-select: none;
   transition: opacity 0.3s ease;
+}
+
+@media screen and (max-width: 768px) {
+  .face-profile-main .test-image-wrapper {
+    height: 300px;
+
+  }
+}
+
+@media screen and (max-width: 300px) {
+  .face-profile-main .test-image-wrapper {
+    height: 250px !important;
+  }
 }
 
 .face-profile-main .test-image-wrapper img:first-child,
@@ -492,7 +539,7 @@
   position: absolute;
   top: 0;
   width: 40px;
-  height: 300px;
+  height: 450px;
   z-index: 10;
   cursor: ew-resize;
   transition: left 0.3s ease;
@@ -557,7 +604,7 @@
   border: 1px solid #F6F6F6;
 }
 
-.video-test .vt-content-container{
+.video-test .vt-content-container {
   display: flex;
   gap: 10px;
 }
@@ -575,12 +622,17 @@
   gap: 10px;
 }
 
-.face-profile-main .video-test .vt-img p {
+/* Video title — match Smile/Pinch */
+/* .face-profile-main .video-test .vt-img h2 {
   text-align: left;
-  font-family: 'Open Sans', sans-serif;
-  font-size: 30px;
-  color: black;
-}
+  font-family: "Bricolage Grotesque", "Open Sans", system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  font-size: clamp(20px, 3vw, 30px);
+  margin-bottom: 10px;
+  color: #071D49;
+} */
+
 
 /* rely on the container's gap instead of margins on videos */
 .face-profile-main .video-test .vt-img video {
@@ -605,7 +657,10 @@
   font-family: 'Open Sans', sans-serif;
   font-size: 10px;
   color: black;
-  margin-top: 4px;
+  /* margin-top: 4px; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* video caption overlays (SVG) */
@@ -617,6 +672,22 @@
 
 .video-test video {
   display: block;
+  display: flex;
+  object-fit: cover;
+  height: 400px;
+}
+
+@media screen and (max-width: 768px) {
+  .video-test video {
+    height: 300px;
+
+  }
+}
+
+@media screen and (max-width: 300px) {
+  .video-test video {
+    height: 250px !important;
+  }
 }
 
 /* .video-test .video-caption-img {
@@ -676,6 +747,7 @@
 }
 
 .face-profile-main .disclaimer .disclaimer-text:last-child {
+  margin-bottom: 20px;
   padding-bottom: 0;
 }
 
@@ -726,13 +798,13 @@
   /* 2x2 grid */
   .face-profile-main .fcp-top .faces .face-images {
     flex-wrap: wrap;
-    gap: 12px;
+    /* gap: 12px; */
     margin-top: 16px;
   }
 
   .face-profile-main .fcp-top .faces .face-images img.faces-images {
-    width: 180px;
-    height: 240px;
+    /* width: 180px;
+    height: 180px; */
   }
 
   .face-profile-main .fcp-top .faces .face-images .face-image-text p {
@@ -741,13 +813,13 @@
 
   /* tests smaller */
   .face-profile-main .face-test {
-    gap: 24px;
+    gap: 15px;
     padding: 20px 16px;
   }
 
   .face-profile-main .test-image-wrapper {
     /* width: 360px; */
-    height: 240px;
+    height: 240px !important;
   }
 
   .face-profile-main .slider-thumb {
@@ -775,18 +847,18 @@
   }
 
   .face-profile-main .fcp-top .faces .face-images {
-    /* flex-wrap: nowrap; */
+    /* flex-wrap: wrap; */
     /* gap: 12px; */
   }
 
   .face-profile-main .fcp-top .faces .face-images img.faces-images {
     /* width: 220px;
-    height: 300px; */
+    height: 220px; */
   }
 
   .face-profile-main .test-image-wrapper {
     /* width: 600px; */
-    height: 360px;
+    height: 360px !important;
   }
 
   .face-profile-main .slider-thumb {
@@ -922,5 +994,96 @@
 @media (min-width: 1000px) and (max-width: 1400px) and (orientation: landscape) {
   .video-caption-img {
     max-width: min(22%, 165px);
+  }
+}
+
+/* Image Modal Styles */
+.img-modal-close {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 0;
+  background: transparent;
+  color: rgb(22, 22, 22);
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  appearance: none;               /* avoid default button styling */
+ -webkit-appearance: none;
+  /* Add transition for smooth changes */
+}
+:root { --close-icon-scale: 1.18; }  /* tune this number (e.g., 1.12–1.25) */
+
+.img-modal-close img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  transform: scale(var(--close-icon-scale));
+  transform-origin: center;            /* stays centered, position unchanged */
+}
+
+
+.img-modal-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0);
+  color: rgb(241, 241, 241);
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  /* Add transition for smooth changes */
+}
+
+.img-modal-prev {
+  left: -50px;
+}
+
+.img-modal-next {
+  right: -50px;
+}
+
+/* Responsive styles for the modal */
+@media (max-width: 768px) {
+  .img-modal-close {
+    top: 10px;
+    right: 10px;
+    width: 25px;
+    height: 25px;
+    font-size: 16px;
+  }
+
+  .img-modal-nav {
+    width: 30px;
+    height: 30px;
+    color: rgb(28, 28, 28);
+  }
+
+  .img-modal-nav img {
+    width: 8px;
+    /* Adjust size as needed */
+  }
+
+  .img-modal-prev {
+    left: 10px;
+  }
+
+  .img-modal-next {
+    right: 10px;
   }
 }
