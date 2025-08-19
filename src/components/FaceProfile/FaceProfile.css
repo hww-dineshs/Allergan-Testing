@@ -275,16 +275,31 @@
 }
 
 /* grid wrapper */
+/* put this near your other root vars if you like */
+:root {
+  --tile-width: 270px;
+  /* ← tweak this number to make tiles narrower/wider */
+}
+
+/* grid wrapper */
 .face-profile-main .fcp-top .faces .face-images {
   display: grid;
   width: 80%;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  /* was: repeat(auto-fit, minmax(250px, 1fr)) */
+  grid-template-columns: repeat(4, minmax(200px, 1fr));
   justify-content: center;
-  align-items: center;
-  gap: 0px;
+  /* center the grid when there’s extra space */
+  align-items: start;
+  gap: 0;
   margin-top: 20px;
-
 }
+
+@media (min-width: 768px) and (max-width: 1368px) and (orientation: portrait) {
+  .face-profile-main .fcp-top .faces .face-images {
+    grid-template-columns: repeat(2, minmax(200px, 1fr));
+  }
+}
+
 
 /* each tile */
 .face-profile-main .fcp-top .faces .face-images .face-tile {
@@ -330,11 +345,16 @@
 /* Tile captions under the four images — match Figma */
 .face-profile-main .fcp-top .faces .face-images .face-image-text p {
   font-family: "Bricolage Grotesque", "Open Sans", system-ui, sans-serif;
-  font-weight: 400;            /* Regular */
-  font-size: 18px;             /* Figma shows 14 */
-  line-height: normal;         /* Figma “Auto” */
-  letter-spacing: -0.04em;     /* Figma -4% */
-  color: #071D49;              /* Figma fill */
+  font-weight: 400;
+  /* Regular */
+  font-size: 18px;
+  /* Figma shows 14 */
+  line-height: normal;
+  /* Figma “Auto” */
+  letter-spacing: -0.04em;
+  /* Figma -4% */
+  color: #071D49;
+  /* Figma fill */
   text-align: left;
 }
 
@@ -606,7 +626,7 @@ body.no-scroll {
 
 .video-test .vt-content-container {
   display: flex;
-  gap: 10px;
+  gap: 16px;
 }
 
 @media (max-width: 768px) {
@@ -644,9 +664,8 @@ body.no-scroll {
 .face-profile-main .video-test .product_and_volume {
   display: flex;
   gap: 10px;
-  background: #00A3E0;
-  opacity: 0.5;
-  border-radius: 5px;
+  background: rgba(0, 163, 224, 0.10);
+  /* opacity: 0.5; */
   padding: 5px 10px;
   margin-top: 30px;
   cursor: pointer;
@@ -662,6 +681,10 @@ body.no-scroll {
   justify-content: center;
   align-items: center;
 }
+
+
+
+
 
 /* video caption overlays (SVG) */
 .video-test .video-wrap {
@@ -732,6 +755,8 @@ body.no-scroll {
 .face-profile-main .disclaimer h1 {
   padding-top: 20px;
   color: #7D7C7C;
+  font-family: "Bricolage Grotesque", "Open Sans", system-ui, sans-serif;
+  /* font only — size unchanged */
   /* margin: 0 0 0 240px; */
   margin: 0;
 }
@@ -745,6 +770,24 @@ body.no-scroll {
   margin: 0;
   /* margin-left: 240px; */
 }
+
+/* Override type just for disclaimer copy */
+.face-profile-main .disclaimer .disclaimer-body,
+.face-profile-main .disclaimer .disclaimer-body p {
+  font-family: "Bricolage Grotesque", "Open Sans", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  /* or: inherit */
+  line-height: 1.6;
+  /* or: inherit */
+  letter-spacing: 0;
+}
+
+.face-profile-main .disclaimer sup {
+  font-size: .9em;
+  line-height: 0;
+}
+
 
 .face-profile-main .disclaimer .disclaimer-text:last-child {
   margin-bottom: 20px;
@@ -1015,11 +1058,17 @@ body.no-scroll {
   justify-content: center;
   align-items: center;
   transition: all 0.3s ease;
-  appearance: none;               /* avoid default button styling */
- -webkit-appearance: none;
+  appearance: none;
+  /* avoid default button styling */
+  -webkit-appearance: none;
   /* Add transition for smooth changes */
 }
-:root { --close-icon-scale: 1.18; }  /* tune this number (e.g., 1.12–1.25) */
+
+:root {
+  --close-icon-scale: 1.30;
+}
+
+/* tune this number (e.g., 1.12–1.25) */
 
 .img-modal-close img {
   width: 100%;
@@ -1027,7 +1076,8 @@ body.no-scroll {
   display: block;
   pointer-events: none;
   transform: scale(var(--close-icon-scale));
-  transform-origin: center;            /* stays centered, position unchanged */
+  transform-origin: center;
+  /* stays centered, position unchanged */
 }
 
 

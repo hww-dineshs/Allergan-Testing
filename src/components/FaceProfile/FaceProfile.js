@@ -527,12 +527,12 @@ const CAPTION_SETS = {
 const GROUP_HCA = new Set(['Anne', 'Elisabeth', 'Olivia']);
 const GROUP_HCA_JUVE = new Set(['Katerina', 'Sonya', 'Sunny']);
 
-
 // bump ™ / ® size a touch inside captions & disclaimers
 document.head.insertAdjacentHTML(
   'beforeend',
   '<style>.face-image-text sup, .disclaimer sup{font-size:.9em;line-height:0;}</style>'
 );
+
 
 // --- STATE ---
 let selectedIndex = 0;
@@ -586,6 +586,8 @@ const el = {
   // captionBlocks: Array.from(document.querySelectorAll('.face-images .face-tile .face-image-text')),
 
 };
+
+
 // --- PAN with drag/touch on any image ---
 const grid = document.querySelector('.face-images');
 
@@ -739,52 +741,146 @@ function updateInfoTooltip() {
 //   return { open: () => (overlay.style.display = 'flex'), close: () => (overlay.style.display = 'none') };
 // })();
 
-// Product sheet modal
+/* ===== Reusable scroll lock (tablet/iOS safe) ===== */
+const scrollLock = (() => {
+  let locks = 0;
+  let scrollY = 0;
+  const prevent = (e) => e.preventDefault();
+
+  function apply() {
+    scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+    const b = document.body;
+
+    // Freeze body at current offset so the viewport can't move
+    b.style.position = 'fixed';
+    b.style.top = `-${scrollY}px`;
+    b.style.left = '0';
+    b.style.right = '0';
+    b.style.width = '100%';
+    b.style.overflow = 'hidden';
+
+    // Eat gestures so background never gets them via scroll chaining
+    window.addEventListener('touchmove', prevent, { passive: false });
+    window.addEventListener('wheel', prevent, { passive: false });
+  }
+
+  function release() {
+    const b = document.body;
+
+    // Restore body and jump back to the exact scroll position
+    b.style.position = '';
+    b.style.top = '';
+    b.style.left = '';
+    b.style.right = '';
+    b.style.width = '';
+    b.style.overflow = '';
+
+    window.removeEventListener('touchmove', prevent);
+    window.removeEventListener('wheel', prevent);
+    window.scrollTo(0, scrollY);
+  }
+
+  return {
+    lock() { if (++locks === 1) apply(); },
+    unlock() { if (locks > 0 && --locks === 0) release(); }
+  };
+})();
+
+
+
 // Product sheet modal
 const modal = (() => {
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:9999;';
-  const box = document.createElement('div');
-  box.style.cssText = 'width:720px; height:600px; background:#fff; position:relative; overflow:visible; display:flex; align-items:center; justify-content:center; padding: 20px;';
+  overlay.style.cssText =
+    'position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:9999; overscroll-behavior:contain; touch-action:none;'; const box = document.createElement('div');
+  box.style.cssText =
+    'width:720px; height:600px; background:#fff; position:relative; overflow:visible; display:flex; align-items:center; justify-content:center; padding: 20px;';
   const img = document.createElement('img');
-  // REMOVE the hardcoded src; we'll set it dynamically
   img.alt = 'product sheet';
   img.style.maxWidth = '100%';
   img.style.maxHeight = '100%';
+
   const close = document.createElement('button');
   const closeIcon = document.createElement('img');
-  closeIcon.src = A('icons/cross_button.svg'); // ../../assets/icons/cross_button.svg
+  closeIcon.src = A('icons/cross_button.svg');
   closeIcon.alt = '';
   close.appendChild(closeIcon);
   close.setAttribute('aria-label', 'Close');
-  close.style.cssText = 'position:absolute; top:0; right:0; transform: translate(14px, -12px); font-size:24px; line-height:1; background:transparent; border:none; cursor:pointer;';
+  close.style.cssText =
+    'position:absolute; top:0; right:0; transform: translate(14px, -12px); font-size:24px; line-height:1; background:transparent; border:none; cursor:pointer;';
+
   box.appendChild(img);
   box.appendChild(close);
   overlay.appendChild(box);
   document.body.appendChild(overlay);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
-  close.addEventListener('click', () => (overlay.style.display = 'none'));
-  // NEW: set image based on profile
+
+  // --- NEW: centralized close + Esc handling + scroll unlock ---
+  const closeAndCleanup = () => {
+    overlay.style.display = 'none';
+    scrollLock.unlock();
+    document.removeEventListener('keydown', escClose);
+  };
+  const escClose = (e) => {
+    if (e.key === 'Escape') closeAndCleanup();
+  };
+
+  // backdrop click closes
+  // don't close on backdrop click (mirror imgModal behavior)
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      e.stopPropagation(); // swallow the click; keep modal open
+    }
+  });
+
+  // X button closes
+  close.addEventListener('click', closeAndCleanup);
+
+  // Keep setPerson EXACTLY as you had it
   function setPerson(name) {
     img.src = TABLE_IMAGES[name] || A('images/product_sheet.svg');
     img.alt = `${name} product sheet`;
   }
+
   // initialize to first profile so it's never empty
   setPerson(PROFILES[0].name);
+
   return {
-    open: () => (overlay.style.display = 'flex'),
-    close: () => (overlay.style.display = 'none'),
-    setPerson, // expose setter
+    open: () => {
+      overlay.style.display = 'flex';
+      scrollLock.lock();                 // NEW: lock page scroll
+      document.addEventListener('keydown', escClose); // NEW: Esc to close
+    },
+    close: closeAndCleanup,              // NEW: shared closer
+    setPerson,                           // unchanged
   };
 })();
+
+
+function getModalCaption(personName, tileIdx) {
+  let caps;
+  if (HCA_PROFILES.has(personName)) caps = HCA_CAPTIONS;
+  else if (JUV_PROFILES.has(personName)) caps = JUV_CAPTIONS;
+  else {
+    caps = [
+      { l1: 'Before', l2: '', l3: '' },
+      { l1: 'Immediately after', l2: 'HArmonyCa\u2122', l3: '' },
+      { l1: '3 months after', l2: 'HArmonyCa\u2122', l3: '' },
+      { l1: '4 months after', l2: 'HArmonyCa\u2122', l3: '' },
+    ];
+  }
+  const c = caps[tileIdx] || {};
+  // keep <sup> tags so ®/™ render correctly
+  const line1 = [c.l1, c.l2].filter(Boolean).join(' ').trim();
+  const line2 = c.l3 ? `(${c.l3})` : '';
+  return { line1, line2 };
+}
 
 
 
 // Image preview modal (per-tile “zoomAll” icon)
 const imgModal = (() => {
   const overlay = document.createElement('div');
-  overlay.style.cssText = `position:fixed; inset:0; background:rgba(0,0,0,0.75); display:none; align-items:center; justify-content:center; z-index:10000;`;
-  const box = document.createElement('div');
+  overlay.style.cssText = `position:fixed; inset:0; background:rgba(0,0,0,0.75); display:none; align-items:center; justify-content:center; z-index:10000; overscroll-behavior:contain; touch-action:none;`; const box = document.createElement('div');
   box.style.cssText = `
   width: 640px; height: 480px;
   max-width: 95vw; max-height: 85vh;
@@ -797,8 +893,25 @@ const imgModal = (() => {
   img.style.cssText = `
   width: 100%; height: 100%;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 10px;`
+
+  const caption = document.createElement('div');
+  caption.className = 'img-modal-caption';
+  caption.style.cssText = `
+  position:absolute; left:16px; bottom:14px;
+  display:flex; flex-direction:column; gap:2px;
+  padding:0;                   /* no pill */
+  background:transparent;      /* no background */
+  border-radius:0;             /* no rounded box */
+  box-shadow:none;             /* no shadow */
+  font-family:"Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color:#071D49;             /* use site text color */
 `;
+  caption.innerHTML = `
+  <p class="cap-main" style="margin:0; font-weight:600; font-size:16px; line-height:1.25; letter-spacing:-0.04em;"></p>
+  <p class="cap-sub"  style="margin:0; font-weight:400; font-size:12px; line-height:1.2; letter-spacing:-0.04em;"></p>
+`;
+
 
   // const close = document.createElement('button');
   // close.className = 'img-modal-close'; // Use class for styling
@@ -827,6 +940,7 @@ const imgModal = (() => {
   next.setAttribute('aria-label', 'Next image');
 
   box.appendChild(img);
+  box.appendChild(caption);
   box.appendChild(close);
   box.appendChild(prev);
   box.appendChild(next);
@@ -838,7 +952,13 @@ const imgModal = (() => {
 
   const updateImage = () => {
     img.src = images[currentIndex];
+    const { line1, line2 } = getModalCaption(selectedPerson, currentIndex);
+    caption.querySelector('.cap-main').innerHTML = line1;  // keep <sup>
+    const sub = caption.querySelector('.cap-sub');
+    sub.innerHTML = line2;                                  // keep <sup>
+    sub.style.display = line2 ? 'block' : 'none';
   };
+
 
   // overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
   // Don't close on backdrop click anymore
@@ -850,10 +970,12 @@ const imgModal = (() => {
 
 
   // close.addEventListener('click', () => (overlay.style.display = 'none'));
-  close.addEventListener('click', () => {
+  const closeModal = () => {
     overlay.style.display = 'none';
-    document.body.classList.remove('no-scroll'); // remove lock on X
-  });
+    scrollLock.unlock();
+    document.removeEventListener('keydown', onKeyDown);
+  };
+  close.addEventListener('click', closeModal);
 
 
   prev.addEventListener('click', () => {
@@ -867,10 +989,12 @@ const imgModal = (() => {
   });
   // Close via Esc; allow arrow keys for nav too
   const onKeyDown = (e) => {
+    // if (e.key === 'Escape') {
+    //   overlay.style.display = 'none';
+    //   document.body.classList.remove('no-scroll');
+    //   document.removeEventListener('keydown', onKeyDown);
     if (e.key === 'Escape') {
-      overlay.style.display = 'none';
-      document.body.classList.remove('no-scroll');
-      document.removeEventListener('keydown', onKeyDown);
+      closeModal();
     } else if (e.key === 'ArrowRight') {
       next.click();
     } else if (e.key === 'ArrowLeft') {
@@ -888,11 +1012,14 @@ const imgModal = (() => {
       currentIndex = index;
       updateImage();
       overlay.style.display = 'flex';
-      document.body.classList.add('no-scroll');   // <— ADD THIS LINE
+      // document.body.classList.add('no-scroll');   // <— ADD THIS LINE
+      scrollLock.lock();
+      document.addEventListener('keydown', onKeyDown);
     },
     close: () => {
-      overlay.style.display = 'none';
-      document.body.classList.remove('no-scroll'); // <— remove lock when closed programmatically
+      // overlay.style.display = 'none';
+      // document.body.classList.remove('no-scroll'); // <— remove lock when closed programmatically
+      closeModal();
     }
   };
 })();
@@ -1390,15 +1517,13 @@ el.options.addEventListener('click', (e) => {
   const img = e.target.closest('img[data-person]');
   if (!img) return;
   const person = img.getAttribute('data-person');
-  if (person !== 'Anne') return; // ← NEW: ignore all but Anne
+    if (person !== 'Anne') return; // ← NEW: ignore all but Anne
   const idx = PROFILES.findIndex((p) => p.name === person);
   if (idx !== -1) selectedIndex = idx;
   changeImages(person, 'center');
 });
 
 // --- HEADER ARROWS ---
-// function nextProfile() { selectedIndex = (selectedIndex + 1) % PROFILES.length; changeImages(PROFILES[selectedIndex].name, 'center'); }
-// function prevProfile() { selectedIndex = (selectedIndex - 1 + PROFILES.length) % PROFILES.length; changeImages(PROFILES[selectedIndex].name, 'center'); }
 function nextProfile() { selectedIndex = 0; changeImages('Anne', currentPosition); }
 function prevProfile() { selectedIndex = 0; changeImages('Anne', currentPosition); }
 
@@ -1554,6 +1679,7 @@ el.productBtn.addEventListener('click', () => {
   modal.setPerson(selectedPerson); // ensure correct table for current profile
   modal.open();
 });
+el.productBtn.style.setProperty('--cta-scale', '1.12');
 
 // --- TILE CLICK HANDLERS ---
 // 1) Per-tile zoom modal button (top-right)
