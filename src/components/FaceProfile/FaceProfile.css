@@ -296,7 +296,7 @@
 
 @media (min-width: 768px) and (max-width: 1368px) and (orientation: portrait) {
   .face-profile-main .fcp-top .faces .face-images {
-    grid-template-columns: repeat(2, minmax(200px, 1fr));
+    grid-template-columns: repeat(4, minmax(200px, 1fr));
   }
 }
 

@@ -241,7 +241,7 @@ const Sources = {
       A('patients-profiles/olivia/treatment-video/Olivia After.mp4'),
     ],
     right: [
-      A('patients-profiles/olivia/before/RF_BF.jpg'),
+      A('patients-profiles/olivia/before/RP_BF.jpg'),
       A('patients-profiles/olivia/immediately-after/HA_JUV_OLIVIA_RF_AFTER_RGB.jpg'),
       A('patients-profiles/olivia/3-months-after/RF_3_AF.jpg'),
       A('patients-profiles/olivia/4-months-after/RF_4_AF.jpg'),
@@ -253,7 +253,7 @@ const Sources = {
       A('patients-profiles/olivia/treatment-video/Olivia After.mp4'),
     ],
     rightMost: [
-      A('patients-profiles/olivia/before/RP_BF.jpg'),
+      A('patients-profiles/olivia/before/RF_BF.jpg'),
       A('patients-profiles/olivia/immediately-after/HA_JUV_OLIVIA_RP_AFTER_RGB.jpg'),
       A('patients-profiles/olivia/3-months-after/RP_3_AF.jpg'),
       A('patients-profiles/olivia/4-months-after/RP_4_AF.jpg'),
@@ -392,6 +392,8 @@ const Sources = {
     ],
   },
 };
+
+
 
 const DISCLAIMERS = {
   Anne: `
@@ -781,7 +783,7 @@ const scrollLock = (() => {
   }
 
   return {
-    lock() { if (++locks === 1) apply(); },
+    lock()   { if (++locks === 1) apply(); },
     unlock() { if (locks > 0 && --locks === 0) release(); }
   };
 })();
@@ -792,7 +794,7 @@ const scrollLock = (() => {
 const modal = (() => {
   const overlay = document.createElement('div');
   overlay.style.cssText =
-    'position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:9999; overscroll-behavior:contain; touch-action:none;'; const box = document.createElement('div');
+'position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:9999; overscroll-behavior:contain; touch-action:none;';  const box = document.createElement('div');
   box.style.cssText =
     'width:720px; height:600px; background:#fff; position:relative; overflow:visible; display:flex; align-items:center; justify-content:center; padding: 20px;';
   const img = document.createElement('img');
@@ -825,12 +827,12 @@ const modal = (() => {
   };
 
   // backdrop click closes
-  // don't close on backdrop click (mirror imgModal behavior)
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      e.stopPropagation(); // swallow the click; keep modal open
-    }
-  });
+ // don't close on backdrop click (mirror imgModal behavior)
+overlay.addEventListener('click', (e) => {
+  if (e.target === overlay) {
+    e.stopPropagation(); // swallow the click; keep modal open
+  }
+});
 
   // X button closes
   close.addEventListener('click', closeAndCleanup);
@@ -880,7 +882,7 @@ function getModalCaption(personName, tileIdx) {
 // Image preview modal (per-tile “zoomAll” icon)
 const imgModal = (() => {
   const overlay = document.createElement('div');
-  overlay.style.cssText = `position:fixed; inset:0; background:rgba(0,0,0,0.75); display:none; align-items:center; justify-content:center; z-index:10000; overscroll-behavior:contain; touch-action:none;`; const box = document.createElement('div');
+overlay.style.cssText = `position:fixed; inset:0; background:rgba(0,0,0,0.75); display:none; align-items:center; justify-content:center; z-index:10000; overscroll-behavior:contain; touch-action:none;`;  const box = document.createElement('div');
   box.style.cssText = `
   width: 640px; height: 480px;
   max-width: 95vw; max-height: 85vh;
@@ -895,9 +897,9 @@ const imgModal = (() => {
   object-fit: cover;
   border-radius: 10px;`
 
-  const caption = document.createElement('div');
-  caption.className = 'img-modal-caption';
-  caption.style.cssText = `
+const caption = document.createElement('div');
+caption.className = 'img-modal-caption';
+caption.style.cssText = `
   position:absolute; left:16px; bottom:14px;
   display:flex; flex-direction:column; gap:2px;
   padding:0;                   /* no pill */
@@ -905,13 +907,12 @@ const imgModal = (() => {
   border-radius:0;             /* no rounded box */
   box-shadow:none;             /* no shadow */
   font-family:"Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  color:#071D49;             /* use site text color */
+  color:#000;           /* use site text color */
 `;
-  caption.innerHTML = `
-  <p class="cap-main" style="margin:0; font-weight:600; font-size:16px; line-height:1.25; letter-spacing:-0.04em;"></p>
-  <p class="cap-sub"  style="margin:0; font-weight:400; font-size:12px; line-height:1.2; letter-spacing:-0.04em;"></p>
+caption.innerHTML = `
+  <p class="cap-main" style="margin:0; font-weight:400; font-size:14px; line-height:16px; letter-spacing:-0.56px;"></p>
+  <p class="cap-sub"  style="margin:0; font-weight:400; font-size:12px; line-height:1.2;  letter-spacing:-0.04em;"></p>
 `;
-
 
   // const close = document.createElement('button');
   // close.className = 'img-modal-close'; // Use class for styling
@@ -940,7 +941,7 @@ const imgModal = (() => {
   next.setAttribute('aria-label', 'Next image');
 
   box.appendChild(img);
-  box.appendChild(caption);
+box.appendChild(caption);   
   box.appendChild(close);
   box.appendChild(prev);
   box.appendChild(next);
@@ -950,14 +951,14 @@ const imgModal = (() => {
   let currentIndex = 0;
   const images = [];
 
-  const updateImage = () => {
-    img.src = images[currentIndex];
-    const { line1, line2 } = getModalCaption(selectedPerson, currentIndex);
-    caption.querySelector('.cap-main').innerHTML = line1;  // keep <sup>
-    const sub = caption.querySelector('.cap-sub');
-    sub.innerHTML = line2;                                  // keep <sup>
-    sub.style.display = line2 ? 'block' : 'none';
-  };
+ const updateImage = () => {
+  img.src = images[currentIndex];
+  const { line1, line2 } = getModalCaption(selectedPerson, currentIndex);
+  caption.querySelector('.cap-main').innerHTML = line1;  // keep <sup>
+  const sub = caption.querySelector('.cap-sub');
+  sub.innerHTML = line2;                                  // keep <sup>
+  sub.style.display = line2 ? 'block' : 'none';
+};
 
 
   // overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
@@ -970,12 +971,12 @@ const imgModal = (() => {
 
 
   // close.addEventListener('click', () => (overlay.style.display = 'none'));
-  const closeModal = () => {
-    overlay.style.display = 'none';
-    scrollLock.unlock();
-    document.removeEventListener('keydown', onKeyDown);
-  };
-  close.addEventListener('click', closeModal);
+ const closeModal = () => {
+ overlay.style.display = 'none';
+   scrollLock.unlock();
+   document.removeEventListener('keydown', onKeyDown);
+ };
+ close.addEventListener('click', closeModal);
 
 
   prev.addEventListener('click', () => {
@@ -993,8 +994,7 @@ const imgModal = (() => {
     //   overlay.style.display = 'none';
     //   document.body.classList.remove('no-scroll');
     //   document.removeEventListener('keydown', onKeyDown);
-    if (e.key === 'Escape') {
-      closeModal();
+    if (e.key === 'Escape'){ closeModal();
     } else if (e.key === 'ArrowRight') {
       next.click();
     } else if (e.key === 'ArrowLeft') {
@@ -1481,7 +1481,7 @@ function updateTestCaptions(personName) {
 
 
 function changeImages(person, position) {
-  person = 'Anne'; // ← ensure we always use Anne
+ person = 'Anne'; // ← ensure we always use Anne
   selectedPerson = person;
   currentPosition = position;
   setHeaderName();
