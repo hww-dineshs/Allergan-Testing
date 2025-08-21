@@ -9,6 +9,65 @@ const PROFILES = [
 ];
 const A = (p) => `../../assets/${p}`;
 
+/* ---------- ultra-fast image preloader ---------- */
+window.requestIdleCallback = window.requestIdleCallback || function (cb) {
+  return setTimeout(() => cb({ timeRemaining: () => 10, didTimeout: true }), 1);
+};
+
+const IMG_CACHE = new Map();
+
+function preloadOne(url) {
+  if (!url || IMG_CACHE.has(url)) return;
+  const img = new Image();
+  img.decoding = 'async';
+  img.loading = 'eager';
+  img.src = url;
+  (img.decode ? img.decode() : Promise.resolve()).catch(() => { }).finally(() => {
+    IMG_CACHE.set(url, img);
+  });
+}
+
+// preload a batch in idle time with a small concurrency
+function preloadBatch(urls, step = 8) {
+  let i = 0;
+  function tick() {
+    for (let j = 0; j < step && i < urls.length; j++, i++) preloadOne(urls[i]);
+    if (i < urls.length) requestIdleCallback(tick, { timeout: 120 });
+  }
+  requestIdleCallback(tick, { timeout: 120 });
+}
+
+// all face-tile image URLs (only first 4 of each view)
+function collectAllFaceImageUrls() {
+  const posKeys = ['leftMost', 'left', 'center', 'right', 'rightMost'];
+  const set = new Set();
+  Object.keys(Sources).forEach((person) => {
+    posKeys.forEach((pos) => {
+      const arr = (Sources[person] && Sources[person][pos]) || [];
+      for (let i = 0; i < 4; i++) if (arr[i]) set.add(arr[i]);
+    });
+  });
+  return [...set];
+}
+
+// prewarm everything (throttled) when the app is idle
+function startGlobalPrewarm() {
+  const all = collectAllFaceImageUrls();
+  preloadBatch(all, 10);
+}
+
+// prewarm all 5 angles for a single person (super fast flips)
+function prewarmPerson(person) {
+  if (!Sources[person]) return;
+  const urls = [];
+  ['leftMost', 'left', 'center', 'right', 'rightMost'].forEach((pos) => {
+    const arr = Sources[person][pos];
+    for (let i = 0; i < 4; i++) if (arr[i]) urls.push(arr[i]);
+  });
+  preloadBatch([...new Set(urls)], 12);
+}
+
+
 // SOURCES 
 const Sources = {
   Anne: {
@@ -535,6 +594,37 @@ document.head.insertAdjacentHTML(
   '<style>.face-image-text sup, .disclaimer sup{font-size:.9em;line-height:0;}</style>'
 );
 
+document.head.insertAdjacentHTML(
+  'beforeend',
+  `<style>
+    /* iOS Safari compositor hints for smooth video */
+    @supports (-webkit-touch-callout: none) {
+      .video-wrap video{
+        transform: translateZ(0);
+        will-change: transform;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        filter: none !important;
+      }
+      /* Keep rounded corners on wrapper if you need them */
+      .video-wrap { border-radius: 12px; }
+      /* Avoid overflow clipping on iPad, which can force software paths */
+      .video-wrap { overflow: visible; }
+    }
+  </style>`
+);
+document.head.insertAdjacentHTML('beforeend', `
+  <style>
+    .face-images img { 
+      transform: translateZ(0); 
+      will-change: transform;
+      backface-visibility: hidden;
+    }
+  </style>
+`);
+
+
+
 
 // --- STATE ---
 let selectedIndex = 0;
@@ -589,6 +679,47 @@ const el = {
 
 };
 
+// --- video sources are profile-level; never change on angle flip ---
+let __videoOwner = null;
+
+function getVideoUrls(person) {
+  // use the 'center' set as canonical (all positions carry same videos)
+  const arr = (Sources[person] && Sources[person].center) || [];
+  return [arr[8] || '', arr[9] || ''];
+}
+
+function setVideosFor(person) {
+  if (!el.video1 || !el.video2) return;
+  if (__videoOwner === person) return; // already set for this profile
+
+  const [v1, v2] = getVideoUrls(person);
+
+  // only set if actually different; avoids reloads on Safari/iPadOS
+  if (v1 && el.video1.getAttribute('data-owner') !== person) {
+    el.video1.src = v1;
+    el.video1.setAttribute('data-owner', person);
+  }
+  if (v2 && el.video2.getAttribute('data-owner') !== person) {
+    el.video2.src = v2;
+    el.video2.setAttribute('data-owner', person);
+  }
+
+  __videoOwner = person;
+  // prime the buffers once per profile (keeps startup smooth)
+  try { el.video1.load(); } catch { }
+  try { el.video2.load(); } catch { }
+}
+
+// make the 4 main <img> elements decode ASAP and be high priority
+el.faceImages.forEach((img) => {
+  if (!img) return;
+  img.decoding = 'async';
+  img.loading = 'eager';
+  // fetchPriority is supported in modern Safari/Chromium; safe to set
+  try { img.fetchPriority = 'high'; } catch { }
+});
+
+
 
 // --- PAN with drag/touch on any image ---
 const grid = document.querySelector('.face-images');
@@ -599,46 +730,159 @@ const pvTooltip = (() => {
   node.id = 'pv-tooltip';
   node.style.cssText = `
     position:absolute; display:none; z-index:10000;
-    background:#fff; border-radius:6px; padding:8px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.2);
-    max-width: 240px; /* Limit the width of the tooltip */
+    background:#4d5358; 
+    border-radius:12px; 
+    padding:3px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.15);
+    max-width: 260px;
+    border: 1px solid #4d5358;
+    transition: opacity 0.2s ease-in-out;
   `;
+  
+  // Add arrow pointing down to the icon
+  const arrow = document.createElement('div');
+  arrow.style.cssText = `
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #4d5358;
+    z-index: 1;
+  `;
+  
+  const arrowBorder = document.createElement('div');
+  arrowBorder.style.cssText = `
+    position: absolute;
+    bottom: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-top: 9px solid #4d5358;
+    z-index: 0;
+  `;
+  
   const img = document.createElement('img');
   img.id = 'pv-tooltip-img';
   img.alt = 'Product Volume';
-  img.style.cssText = 'max-width:100%; height:auto; display:block;';
+  img.style.cssText = 'max-width:100%; height:auto; display:block; border-radius:8px;';
+  
   node.appendChild(img);
+  node.appendChild(arrowBorder);
+  node.appendChild(arrow);
   document.body.appendChild(node);
 
   const show = (src, iconElement) => {
     if (!src || !iconElement) return;
     img.src = src;
-
-    const iconRect = iconElement.getBoundingClientRect();
-    const nodeRect = node.getBoundingClientRect();
-
-    let top = iconRect.bottom + window.scrollY + 5;
-    let left = iconRect.left + window.scrollX + (iconRect.width / 2) - (nodeRect.width / 2);
-
-    // Adjust if the tooltip goes off-screen
-    if (left < 0) {
-      left = 5;
-    }
-    if (left + nodeRect.width > window.innerWidth) {
-      left = window.innerWidth - nodeRect.width - 5;
-    }
-    if (top + nodeRect.height > window.innerHeight) {
-      top = iconRect.top + window.scrollY - nodeRect.height - 5;
-    }
-
-
-    node.style.top = `${top}px`;
-    node.style.left = `${left}px`;
+    
+    // Show tooltip first to get its dimensions
     node.style.display = 'block';
+    node.style.opacity = '0';
+    
+    // Use requestAnimationFrame to ensure DOM is updated
+    requestAnimationFrame(() => {
+      const iconRect = iconElement.getBoundingClientRect();
+      const nodeRect = node.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      
+      // Calculate icon center
+      const iconCenterX = iconRect.left + (iconRect.width / 2);
+      
+      // Calculate tooltip position - centered on icon
+      let tooltipLeft = iconCenterX - (nodeRect.width / 2);
+      let tooltipTop = iconRect.top + window.scrollY - nodeRect.height - 12; // 12px gap above
+      
+      // Adjust horizontal position for small screens
+      const minMargin = 8; // Minimum margin from screen edge
+      let adjustedLeft = tooltipLeft;
+      
+      if (tooltipLeft < minMargin) {
+        adjustedLeft = minMargin;
+      } else if (tooltipLeft + nodeRect.width > viewportWidth - minMargin) {
+        adjustedLeft = viewportWidth - nodeRect.width - minMargin;
+      }
+      
+      // Calculate arrow position relative to tooltip and icon center
+      // Arrow should point to the icon center, not the tooltip center
+      const arrowLeftPosition = iconCenterX - adjustedLeft;
+      const arrowLeft = Math.max(20, Math.min(arrowLeftPosition, nodeRect.width - 20));
+      
+      // Check if tooltip should appear below icon (no space above)
+      const showBelow = tooltipTop < minMargin;
+      
+      if (showBelow) {
+        tooltipTop = iconRect.bottom + window.scrollY + 12;
+        // Arrow pointing up (tooltip below icon)
+        arrow.style.cssText = `
+          position: absolute;
+          top: -8px;
+          left: ${arrowLeft}px;
+          transform: translateX(-50%) rotate(180deg);
+          width: 0;
+          height: 0;
+          border-left: 8px solid transparent;
+          border-right: 8px solid transparent;
+          border-top: 8px solid #4d5358;
+          z-index: 1;
+        `;
+        arrowBorder.style.cssText = `
+          position: absolute;
+          top: -9px;
+          left: ${arrowLeft}px;
+          transform: translateX(-50%) rotate(180deg);
+          width: 0;
+          height: 0;
+          border-left: 9px solid transparent;
+          border-right: 9px solid transparent;
+          border-top: 9px solid #4d5358;
+          z-index: 0;
+        `;
+      } else {
+        // Arrow pointing down (tooltip above icon)
+        arrow.style.cssText = `
+          position: absolute;
+          bottom: -8px;
+          left: ${arrowLeft}px;
+          transform: translateX(-50%);
+          width: 0;
+          height: 0;
+          border-left: 8px solid transparent;
+          border-right: 8px solid transparent;
+          border-top: 8px solid #4d5358;
+          z-index: 1;
+        `;
+        arrowBorder.style.cssText = `
+          position: absolute;
+          bottom: -9px;
+          left: ${arrowLeft}px;
+          transform: translateX(-50%);
+          width: 0;
+          height: 0;
+          border-left: 9px solid transparent;
+          border-right: 9px solid transparent;
+          border-top: 9px solid #4d5358;
+          z-index: 0;
+        `;
+      }
+
+      node.style.top = `${tooltipTop}px`;
+      node.style.left = `${adjustedLeft}px`;
+      node.style.opacity = '1';
+    });
   };
 
   const hide = () => {
-    node.style.display = 'none';
+    node.style.opacity = '0';
+    // setTimeout(() => {
+    //   node.style.display = 'none';
+    // }, 200); // Match transition duration
   };
 
   return {
@@ -783,7 +1027,7 @@ const scrollLock = (() => {
   }
 
   return {
-    lock()   { if (++locks === 1) apply(); },
+    lock() { if (++locks === 1) apply(); },
     unlock() { if (locks > 0 && --locks === 0) release(); }
   };
 })();
@@ -794,7 +1038,7 @@ const scrollLock = (() => {
 const modal = (() => {
   const overlay = document.createElement('div');
   overlay.style.cssText =
-'position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:9999; overscroll-behavior:contain; touch-action:none;';  const box = document.createElement('div');
+    'position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:9999; overscroll-behavior:contain; touch-action:none;'; const box = document.createElement('div');
   box.style.cssText =
     'width:720px; height:600px; background:#fff; position:relative; overflow:visible; display:flex; align-items:center; justify-content:center; padding: 20px;';
   const img = document.createElement('img');
@@ -827,12 +1071,12 @@ const modal = (() => {
   };
 
   // backdrop click closes
- // don't close on backdrop click (mirror imgModal behavior)
-overlay.addEventListener('click', (e) => {
-  if (e.target === overlay) {
-    e.stopPropagation(); // swallow the click; keep modal open
-  }
-});
+  // don't close on backdrop click (mirror imgModal behavior)
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      e.stopPropagation(); // swallow the click; keep modal open
+    }
+  });
 
   // X button closes
   close.addEventListener('click', closeAndCleanup);
@@ -857,6 +1101,15 @@ overlay.addEventListener('click', (e) => {
   };
 })();
 
+// Pause videos when the modal opens (prevents background decoding spikes)
+if (modal && modal.open) {
+  const __origOpen = modal.open;
+  modal.open = (...args) => {
+    try { el.video1 && el.video1.pause(); } catch { }
+    try { el.video2 && el.video2.pause(); } catch { }
+    return __origOpen.apply(modal, args);
+  };
+}
 
 function getModalCaption(personName, tileIdx) {
   let caps;
@@ -882,7 +1135,7 @@ function getModalCaption(personName, tileIdx) {
 // Image preview modal (per-tile “zoomAll” icon)
 const imgModal = (() => {
   const overlay = document.createElement('div');
-overlay.style.cssText = `position:fixed; inset:0; background:rgba(0,0,0,0.75); display:none; align-items:center; justify-content:center; z-index:10000; overscroll-behavior:contain; touch-action:none;`;  const box = document.createElement('div');
+  overlay.style.cssText = `position:fixed; inset:0; background:rgba(0,0,0,0.75); display:none; align-items:center; justify-content:center; z-index:10000; overscroll-behavior:contain; touch-action:none;`; const box = document.createElement('div');
   box.style.cssText = `
   width: 640px; height: 480px;
   max-width: 95vw; max-height: 85vh;
@@ -897,9 +1150,9 @@ overlay.style.cssText = `position:fixed; inset:0; background:rgba(0,0,0,0.75); d
   object-fit: cover;
   border-radius: 10px;`
 
-const caption = document.createElement('div');
-caption.className = 'img-modal-caption';
-caption.style.cssText = `
+  const caption = document.createElement('div');
+  caption.className = 'img-modal-caption';
+  caption.style.cssText = `
   position:absolute; left:16px; bottom:14px;
   display:flex; flex-direction:column; gap:2px;
   padding:0;                   /* no pill */
@@ -909,7 +1162,7 @@ caption.style.cssText = `
   font-family:"Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   color:#000;           /* use site text color */
 `;
-caption.innerHTML = `
+  caption.innerHTML = `
   <p class="cap-main" style="margin:0; font-weight:400; font-size:14px; line-height:16px; letter-spacing:-0.56px;"></p>
   <p class="cap-sub"  style="margin:0; font-weight:400; font-size:12px; line-height:1.2;  letter-spacing:-0.04em;"></p>
 `;
@@ -941,7 +1194,7 @@ caption.innerHTML = `
   next.setAttribute('aria-label', 'Next image');
 
   box.appendChild(img);
-box.appendChild(caption);   
+  box.appendChild(caption);
   box.appendChild(close);
   box.appendChild(prev);
   box.appendChild(next);
@@ -951,14 +1204,14 @@ box.appendChild(caption);
   let currentIndex = 0;
   const images = [];
 
- const updateImage = () => {
-  img.src = images[currentIndex];
-  const { line1, line2 } = getModalCaption(selectedPerson, currentIndex);
-  caption.querySelector('.cap-main').innerHTML = line1;  // keep <sup>
-  const sub = caption.querySelector('.cap-sub');
-  sub.innerHTML = line2;                                  // keep <sup>
-  sub.style.display = line2 ? 'block' : 'none';
-};
+  const updateImage = () => {
+    img.src = images[currentIndex];
+    const { line1, line2 } = getModalCaption(selectedPerson, currentIndex);
+    caption.querySelector('.cap-main').innerHTML = line1;  // keep <sup>
+    const sub = caption.querySelector('.cap-sub');
+    sub.innerHTML = line2;                                  // keep <sup>
+    sub.style.display = line2 ? 'block' : 'none';
+  };
 
 
   // overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
@@ -971,12 +1224,12 @@ box.appendChild(caption);
 
 
   // close.addEventListener('click', () => (overlay.style.display = 'none'));
- const closeModal = () => {
- overlay.style.display = 'none';
-   scrollLock.unlock();
-   document.removeEventListener('keydown', onKeyDown);
- };
- close.addEventListener('click', closeModal);
+  const closeModal = () => {
+    overlay.style.display = 'none';
+    scrollLock.unlock();
+    document.removeEventListener('keydown', onKeyDown);
+  };
+  close.addEventListener('click', closeModal);
 
 
   prev.addEventListener('click', () => {
@@ -994,7 +1247,8 @@ box.appendChild(caption);
     //   overlay.style.display = 'none';
     //   document.body.classList.remove('no-scroll');
     //   document.removeEventListener('keydown', onKeyDown);
-    if (e.key === 'Escape'){ closeModal();
+    if (e.key === 'Escape') {
+      closeModal();
     } else if (e.key === 'ArrowRight') {
       next.click();
     } else if (e.key === 'ArrowLeft') {
@@ -1011,6 +1265,9 @@ box.appendChild(caption);
       }
       currentIndex = index;
       updateImage();
+      try { el.video1 && el.video1.pause(); } catch { }
+      try { el.video2 && el.video2.pause(); } catch { }
+
       overlay.style.display = 'flex';
       // document.body.classList.add('no-scroll');   // <— ADD THIS LINE
       scrollLock.lock();
@@ -1167,7 +1424,20 @@ function renderCaptions(personName) {
 function applyImages(person, position) {
   const arr = Sources[person][position];
   // grid
-  el.faceImages.forEach((img, i) => (img.src = arr[i] || ''));
+  el.faceImages.forEach((img, i) => {
+    const url = arr[i] || '';
+    if (!img) return;
+    img.decoding = 'async';
+    img.loading = 'eager';
+    try { img.fetchPriority = 'high'; } catch { }
+    if (IMG_CACHE.has(url)) {
+      // already decoded once — paint is instant
+      img.src = IMG_CACHE.get(url).src;
+    } else {
+      img.src = url;
+      preloadOne(url); // begin decode so next swaps are instant
+    }
+  });
   // tests (Anne has after-before order for smile)
   if (person === 'Anne') {
     el.smileAfter.src = arr[4]; el.smileBefore.src = arr[5];
@@ -1175,8 +1445,6 @@ function applyImages(person, position) {
     el.smileBefore.src = arr[4]; el.smileAfter.src = arr[5];
   }
   el.pinchBefore.src = arr[6]; el.pinchAfter.src = arr[7];
-  // videos
-  el.video1.src = arr[8]; el.video2.src = arr[9];
   // keep zoom level on swap
   applyZoomAll();
 }
@@ -1481,28 +1749,56 @@ function updateTestCaptions(personName) {
 
 
 function changeImages(person, position) {
- person = 'Anne'; // ← ensure we always use Anne
+  try { el.video1 && el.video1.pause(); } catch { }
+  try { el.video2 && el.video2.pause(); } catch { }
+  const prevPerson = selectedPerson;
+
+  // prewarm this person (all directions) and neighbors for instant flips/switches
+  requestIdleCallback(() => {
+    prewarmPerson(person);
+    const nextIdx = (selectedIndex + 1) % PROFILES.length;
+    const prevIdx = (selectedIndex - 1 + PROFILES.length) % PROFILES.length;
+    prewarmPerson(PROFILES[nextIdx].name);
+    prewarmPerson(PROFILES[prevIdx].name);
+  });
+
   selectedPerson = person;
+  if (!__videoOwner || person !== prevPerson) {
+    setVideosFor(person);
+  }
   currentPosition = position;
   setHeaderName();
   setActiveFaceIcon();
   resetZoom();                 // <--- add this
-  applyImages(person, position);
-  updateTestCaptions(person);   // <—— add this line
-  pan.x = 0;
-  pan.y = 0;
-  applyZoomAll();
-  renderDisclaimer(person);
-  renderCaptions(person);     // <-- set the 2/3-line captions + place info icon
-  updateVideoCaptions(person); updateInfoTooltip(person);
+  requestAnimationFrame(() => {
+    applyImages(person, position);
+    updateTestCaptions(person);
+    pan.x = 0; pan.y = 0; // keep yours if present elsewhere
+    applyZoomAll();
+    renderDisclaimer(person);
+    renderCaptions(person);
+    updateVideoCaptions(person);
+    updateInfoTooltip(person);
+  });
+
   el.options.style.display = 'none';
   el.header2.style.display = 'flex';
 }
 
-
+startGlobalPrewarm();
 // --- INIT ---
 changeImages('Anne', 'center');
+setVideosFor('Anne');
 applyZoomAll();
+
+// --- first-load stabilizer: recompute once after full layout ---
+window.addEventListener('load', () => {
+  requestAnimationFrame(() => {
+    centerSliders();  // seam uses final wrapper width
+    applyZoomAll();   // transforms use final tile size
+  });
+});
+
 
 // --- BURGER ---
 document.querySelector('.hamberger-icon').addEventListener('click', () => {
@@ -1517,16 +1813,14 @@ el.options.addEventListener('click', (e) => {
   const img = e.target.closest('img[data-person]');
   if (!img) return;
   const person = img.getAttribute('data-person');
-    if (person !== 'Anne') return; // ← NEW: ignore all but Anne
   const idx = PROFILES.findIndex((p) => p.name === person);
   if (idx !== -1) selectedIndex = idx;
   changeImages(person, 'center');
 });
 
 // --- HEADER ARROWS ---
-function nextProfile() { selectedIndex = 0; changeImages('Anne', currentPosition); }
-function prevProfile() { selectedIndex = 0; changeImages('Anne', currentPosition); }
-
+function nextProfile() { selectedIndex = (selectedIndex + 1) % PROFILES.length; changeImages(PROFILES[selectedIndex].name, 'center'); }
+function prevProfile() { selectedIndex = (selectedIndex - 1 + PROFILES.length) % PROFILES.length; changeImages(PROFILES[selectedIndex].name, 'center'); }
 el.leftArrow.addEventListener('click', prevProfile);
 el.rightArrow.addEventListener('click', nextProfile);
 
@@ -1581,6 +1875,12 @@ function centerSliders() {
 centerSliders();
 window.addEventListener('orientationchange', () => setTimeout(centerSliders, 50));
 window.addEventListener('resize', () => setTimeout(centerSliders, 50));
+
+
+// --- extra safety: when a slider wrapper actually gets sized, recenter once ---
+const __sliderRO = new ResizeObserver(() => centerSliders());
+el.sliders.forEach(w => __sliderRO.observe(w));
+
 
 // visual elements per slider
 const icDividers = [];
@@ -1640,36 +1940,148 @@ window.addEventListener('touchend', endDrag);
   const v2 = el.video2;
   if (!v1 || !v2) return;
 
-  // Neutralize any HTML attributes
-  v1.controls = false;
-  v2.controls = false;
-  v1.autoplay = false;
-  v2.autoplay = false;
+  // Turn off default UI and autoplay
+  [v1, v2].forEach(v => { v.controls = false; v.autoplay = false; });
+
+  // iOS hardening
+  [v1, v2].forEach((v) => {
+    v.setAttribute('playsinline', '');
+    v.playsInline = true;
+    v.muted = true;
+    v.setAttribute('muted', '');
+    v.preload = 'auto';
+    v.disablePictureInPicture = true;
+    v.setAttribute('controlsList', 'noplaybackrate nodownload noremoteplayback');
+    if ('disableRemotePlayback' in v) v.disableRemotePlayback = true;
+
+    // Keep video on the GPU path (helps iPad smoothness)
+    v.style.transform = 'translateZ(0)';
+    v.style.willChange = 'transform';
+  });
 
   // If the browser tried to autoplay before JS executed, stop it now.
   try { v1.pause(); } catch { }
   try { v2.pause(); } catch { }
 
-  // Click anywhere on a video to toggle both
-  const toggleBoth = (origin) => {
-    const other = origin === v1 ? v2 : v1;
-    if (origin.paused) {
-      origin.play().catch(() => { });  // ignore autoplay policy errors
-      other.play().catch(() => { });
-    } else {
-      origin.pause();
-      other.pause();
+  // Wait until the first time each can play through (one-shot gate)
+  const ready = new WeakSet();
+  const whenReady = (video) => new Promise((resolve) => {
+    // HAVE_CURRENT_DATA (2) is enough for a play() attempt on Safari
+    if (ready.has(video) || video.readyState >= 2) { ready.add(video); resolve(); return; }
+
+    const onCanPlay = () => { ready.add(video); cleanup(); resolve(); };
+    const cleanup = () => {
+      video.removeEventListener('canplay', onCanPlay);
+      video.removeEventListener('loadeddata', onCanPlay);
+    };
+    video.addEventListener('canplay', onCanPlay, { once: true });
+    video.addEventListener('loadeddata', onCanPlay, { once: true });
+  });
+
+
+  const isiPad = /iPad|Macintosh/.test(navigator.userAgent) && 'ontouchend' in document;
+  let __syncingPlay = false;
+
+  function resetIfEnded(v) {
+    // Some browsers keep paused=true at the end and resume can flicker.
+    if (!isFinite(v.duration)) return false;
+    if (v.ended || v.currentTime >= (v.duration - 0.01)) {
+      try { v.currentTime = 0; } catch { }
+      return true;
     }
+    return false;
+  }
+
+
+  // iPad-friendly staggered start
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+  async function playBothSmooth(origin) {
+    if (__syncingPlay) return;
+    __syncingPlay = true;
+
+    // If either is ended, seek both to 0 (or a tiny epsilon) first
+    const resetIfEnded = (v) => {
+      if (isFinite(v.duration) && (v.ended || v.currentTime >= v.duration - 0.01)) {
+        try { v.currentTime = 0.001; } catch { }
+        return true;
+      }
+      return false;
+    };
+    const r1 = resetIfEnded(v1);
+    const r2 = resetIfEnded(v2);
+
+    // Microtask to let Safari settle the seek before play()
+    if (r1 || r2) await Promise.resolve();
+
+    if (isSafari) {
+      // Safari: keep user gesture; do not wait on canplay*/network
+      // Stagger iPad a touch if you want to keep the smoothness
+      try { await (origin === v1 ? v1.play() : v2.play()); } catch { }
+      if (isiPad) await new Promise(r => setTimeout(r, 120));
+      try { await (origin === v1 ? v2.play() : v1.play()); } catch { }
+    } else {
+      // Other browsers: your original light-gate is fine
+      await Promise.all([whenReady(v1), whenReady(v2)]);
+      if (origin === v1) {
+        await v1.play().catch(() => { });
+        if (isiPad) await new Promise(r => setTimeout(r, 120));
+        await v2.play().catch(() => { });
+      } else {
+        await v2.play().catch(() => { });
+        if (isiPad) await new Promise(r => setTimeout(r, 120));
+        await v1.play().catch(() => { });
+      }
+    }
+
+    __syncingPlay = false;
+  }
+
+
+
+  function pauseBoth() { try { v1.pause(); } catch { } try { v2.pause(); } catch { } }
+
+  // Click either to toggle both
+  const toggleBoth = (origin) => {
+    if (origin.paused) playBothSmooth(origin);
+    else pauseBoth();
   };
+
 
   v1.addEventListener('click', () => toggleBoth(v1));
   v2.addEventListener('click', () => toggleBoth(v2));
 
-  // Stay mirrored even if play/pause happens programmatically
-  v1.addEventListener('play', () => { if (v2.paused) v2.play().catch(() => { }); });
-  v2.addEventListener('play', () => { if (v1.paused) v1.play().catch(() => { }); });
-  v1.addEventListener('pause', () => { if (!v2.paused) v2.pause(); });
-  v2.addEventListener('pause', () => { if (!v1.paused) v1.pause(); });
+  // Keep mirrored even if play/pause happens programmatically
+  v1.addEventListener('play', () => {
+    if (__syncingPlay) return;
+    if (v2.paused) playBothSmooth(v1);
+  });
+
+  v2.addEventListener('play', () => {
+    if (__syncingPlay) return;
+    if (v1.paused) playBothSmooth(v2);
+  });
+
+  v1.addEventListener('pause', () => { if (!__syncingPlay && !v2.paused) v2.pause(); });
+  v2.addEventListener('pause', () => { if (!__syncingPlay && !v1.paused) v1.pause(); });
+
+  // When either video ends, reset both to start (Safari fix)
+  const parkBothAtStart = () => {
+    try { v1.pause(); } catch { }
+    try { v2.pause(); } catch { }
+    try { v1.currentTime = 0; } catch { }
+    try { v2.currentTime = 0; } catch { }
+  };
+
+  v1.addEventListener('ended', parkBothAtStart);
+  v2.addEventListener('ended', parkBothAtStart);
+
+
+
+  // Pause if tab/background not visible (saves decode spikes)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) pauseBoth();
+  });
 })();
 
 

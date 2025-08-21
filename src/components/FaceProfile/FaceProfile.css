@@ -281,22 +281,57 @@
   /* ← tweak this number to make tiles narrower/wider */
 }
 
-/* grid wrapper */
+/* grid wrapper - Default: 4 columns */
 .face-profile-main .fcp-top .faces .face-images {
   display: grid;
   width: 80%;
-  /* was: repeat(auto-fit, minmax(250px, 1fr)) */
-  grid-template-columns: repeat(4, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   justify-content: center;
-  /* center the grid when there’s extra space */
-  align-items: start;
-  gap: 0;
+  /* center the grid when there's extra space */
+  align-items: stretch;
+  /* Changed from start to stretch for vertical alignment */
   margin-top: 20px;
 }
 
+/* Large tablets/small desktop - 3 columns */
+@media (max-width: 1024px) {
+  .face-profile-main .fcp-top .faces .face-images {
+    grid-template-columns: repeat(4, 1fr) !important;
+    width: 85%;
+  }
+}
+
+/* Small tablets - 2 columns */
+@media (max-width: 768px) {
+  .face-profile-main .fcp-top .faces .face-images {
+    grid-template-columns: repeat(4, 1fr) !important;
+    width: 90% !important;
+  }
+}
+
+/* Mobile screens - 1 column */
+@media (max-width: 480px) {
+  .face-profile-main .fcp-top .faces .face-images {
+    grid-template-columns: 1fr !important;
+    width: 80% !important;
+  }
+}
+
+/* Tablet portrait - 3 columns */
 @media (min-width: 768px) and (max-width: 1368px) and (orientation: portrait) {
   .face-profile-main .fcp-top .faces .face-images {
-    grid-template-columns: repeat(4, minmax(200px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
+    align-items: stretch;
+    width: 90%;
+    /* 3 columns in tablet portrait */
+  }
+}
+
+/* Small tablet portrait - 2 columns */
+@media (min-width: 600px) and (max-width: 767px) and (orientation: portrait) {
+  .face-profile-main .fcp-top .faces .face-images {
+    grid-template-columns: repeat(2, 1fr);
+    width: 90%;
   }
 }
 
@@ -307,13 +342,19 @@
   position: relative;
   overflow: hidden;
   /* keep scaled image inside */
-  /* padding-bottom: 68px; */
-  /* reserve caption space */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* Ensure tiles fill available height */
 }
 
 .face-profile-main .fcp-top .faces .face-images .face-tile .face-img-container {
   overflow: hidden;
   border: 1px solid #E3E1E1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* the image itself */
@@ -322,13 +363,47 @@
   /* width: 290px; */
   /* max-width: 290px; */
   width: 100%;
-  height: 290px;
+  height: 100%;
+  min-height: 250px;
   object-fit: cover;
   transform-origin: center center;
   transition: transform 0.15s ease;
   z-index: 1;
   position: relative;
   border: 1px solid #E3E1E1;
+}
+
+/* Responsive image heights */
+@media (max-width: 480px) {
+  /* 1 column - larger images */
+  .face-profile-main .fcp-top .faces .face-images img.faces-images {
+    min-height: 280px;
+    max-height: 400px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  /* 2 columns - medium images */
+  .face-profile-main .fcp-top .faces .face-images img.faces-images {
+    min-height: 240px;
+    max-height: 320px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* 3 columns - smaller images */
+  .face-profile-main .fcp-top .faces .face-images img.faces-images {
+    min-height: 220px;
+    max-height: 280px;
+  }
+}
+
+@media (min-width: 1025px) {
+  /* 4 columns - smallest images */
+  .face-profile-main .fcp-top .faces .face-images img.faces-images {
+    min-height: 200px;
+    max-height: 260px;
+  }
 }
 
 /* caption band */
@@ -340,6 +415,8 @@
   z-index: 5;
   background: #fff;
   padding: 12px 16px 14px;
+  flex-shrink: 0;
+  /* Prevent caption from shrinking */
 }
 
 /* Tile captions under the four images — match Figma */
@@ -347,15 +424,28 @@
   font-family: "Bricolage Grotesque", "Open Sans", system-ui, sans-serif;
   font-weight: 400;
   /* Regular */
-  font-size: 18px;
-  /* Figma shows 14 */
+    font-size: clamp(12px, 1vw, 14px) !important;
+  /* Mobile default */
   line-height: normal;
-  /* Figma “Auto” */
+  /* Figma "Auto" */
   letter-spacing: -0.04em;
   /* Figma -4% */
   color: #071D49;
   /* Figma fill */
   text-align: left;
+}
+
+/* Responsive caption font sizes */
+@media (min-width: 480px) {
+  .face-profile-main .fcp-top .faces .face-images .face-image-text p {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .face-profile-main .fcp-top .faces .face-images .face-image-text {
+    padding: 12px 2px 14px;
+  }
 }
 
 
@@ -389,7 +479,7 @@
   background: #F6EBDD;
   position: absolute;
   left: 50%;
-  bottom: 110px;
+  bottom: 80px;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
@@ -401,8 +491,20 @@
   user-select: none;
   z-index: 4;
   box-shadow: 0 8px 16px rgba(0, 0, 0, .12);
-  ;
   pointer-events: auto;
+}
+
+/* Adjust zoom pill position for different screen sizes */
+@media (min-width: 480px) {
+  .face-profile-main .fcp-top .faces .face-images .face-tile .tile-zoom-pill {
+    bottom: 90px;
+  }
+}
+
+@media (min-width: 768px) {
+  .face-profile-main .fcp-top .faces .face-images .face-tile .tile-zoom-pill {
+    bottom: 110px;
+  }
 }
 
 .face-profile-main .fcp-top .faces .face-images .face-tile .tile-zoom-part {
@@ -798,6 +900,16 @@ body.no-scroll {
   vertical-align: middle;
   margin-left: 6px;
   cursor: pointer;
+  display: inline-block;
+  position: relative;
+}
+
+/* Fix info icon positioning in portrait mode */
+@media (min-width: 768px) and (max-width: 1368px) and (orientation: portrait) {
+  .info-icon {
+    vertical-align: middle;
+    display: inline-block;
+  }
 }
 
 /* Force + / – to figma grey whether text or SVG */
@@ -838,16 +950,18 @@ body.no-scroll {
     height: 56px;
   }
 
-  /* 2x2 grid */
+  /* 3 tiles in portrait tablets */
   .face-profile-main .fcp-top .faces .face-images {
-    flex-wrap: wrap;
-    /* gap: 12px; */
+    grid-template-columns: repeat(3, 1fr);
+    align-items: stretch;
     margin-top: 16px;
+    width: 90%;
+    /* gap: 10px; */
   }
 
   .face-profile-main .fcp-top .faces .face-images img.faces-images {
-    /* width: 180px;
-    height: 180px; */
+    height: 100%;
+    min-height: 180px;
   }
 
   .face-profile-main .fcp-top .faces .face-images .face-image-text p {
@@ -890,13 +1004,16 @@ body.no-scroll {
   }
 
   .face-profile-main .fcp-top .faces .face-images {
-    /* flex-wrap: wrap; */
-    /* gap: 12px; */
+    grid-template-columns: repeat(4, 1fr);
+    align-items: stretch;
+    width: 85%;
+    /* gap: 5px; */
+    /* 4 tiles in landscape tablets */
   }
 
   .face-profile-main .fcp-top .faces .face-images img.faces-images {
-    /* width: 220px;
-    height: 220px; */
+    height: 100%;
+    min-height: 220px;
   }
 
   .face-profile-main .test-image-wrapper {
