@@ -1368,7 +1368,7 @@ function renderCaptions(personName) {
     const p3 = mk(l3);
     // style line 3 a bit smaller like before
     p3.style.fontSize = '0.85em';
-    p3.style.display = 'inline-flex';
+    p3.style.display = 'flow';
     p3.style.alignItems = 'center';
 
     el.appendChild(p1);
@@ -1791,15 +1791,6 @@ changeImages('Anne', 'center');
 setVideosFor('Anne');
 applyZoomAll();
 
-// --- first-load stabilizer: recompute once after full layout ---
-window.addEventListener('load', () => {
-  requestAnimationFrame(() => {
-    centerSliders();  // seam uses final wrapper width
-    applyZoomAll();   // transforms use final tile size
-  });
-});
-
-
 // --- BURGER ---
 document.querySelector('.hamberger-icon').addEventListener('click', () => {
   const options = el.options;
@@ -1875,12 +1866,6 @@ function centerSliders() {
 centerSliders();
 window.addEventListener('orientationchange', () => setTimeout(centerSliders, 50));
 window.addEventListener('resize', () => setTimeout(centerSliders, 50));
-
-
-// --- extra safety: when a slider wrapper actually gets sized, recenter once ---
-const __sliderRO = new ResizeObserver(() => centerSliders());
-el.sliders.forEach(w => __sliderRO.observe(w));
-
 
 // visual elements per slider
 const icDividers = [];
