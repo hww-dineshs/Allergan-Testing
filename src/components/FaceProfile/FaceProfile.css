@@ -446,31 +446,36 @@
   background: #fff;
   /* padding: 12px 16px 14px; */
   /* width: 90%; */
-  margin: auto;
+  margin: 0;
   flex-shrink: 0;
+  /* font-size: 20px; */
   /* Prevent caption from shrinking */
 }
 
 /* Tile captions under the four images — match Figma */
-.face-profile-main .fcp-top .faces .face-images .face-image-text p {
-  font-family: "Bricolage Grotesque", "Open Sans", system-ui, sans-serif;
+/* First and second lines */
+.face-profile-main .fcp-top .faces .face-images .face-image-text p:nth-child(1),
+.face-profile-main .fcp-top .faces .face-images .face-image-text p:nth-child(2) {
+  color: #000;
+  font-family: "Founders Grotesk", sans-serif;
+  font-size: 24px;
+  font-style: normal;
   font-weight: 400;
-  /* Regular */
-  font-size: clamp(12px, 1vw, 14px) !important;
-  /* Mobile default */
-  line-height: normal;
-  /* Figma "Auto" */
-  letter-spacing: -0.04em;
-  /* Figma -4% */
-  color: #071D49;
-  /* Figma fill */
-  text-align: left;
+  line-height: 24px; /* 100% */
 }
 
+.face-profile-main .fcp-top .faces .face-images .face-image-text p:nth-child(3) {
+  color: #000;
+  font-family: "Founders Grotesk", sans-serif;
+  font-size: 12px !important;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 16px; /* 133.333% */
+}
 /* Responsive caption font sizes */
 @media (min-width: 480px) {
   .face-profile-main .fcp-top .faces .face-images .face-image-text p {
-    font-size: 16px;
+    font-size: 20px !important;
   }
 }
 
@@ -511,7 +516,7 @@
   background: #F6EBDD;
   position: absolute;
   left: 50%;
-  bottom: 90px;
+  bottom: 110px;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
@@ -529,13 +534,13 @@
 /* Adjust zoom pill position for different screen sizes */
 @media (min-width: 480px) {
   .face-profile-main .fcp-top .faces .face-images .face-tile .tile-zoom-pill {
-    bottom: 90px;
+    bottom: 110px;
   }
 }
 
 @media (min-width: 768px) {
   .face-profile-main .fcp-top .faces .face-images .face-tile .tile-zoom-pill {
-    bottom: 90px;
+    bottom: 110px;
   }
 }
 
@@ -1046,6 +1051,8 @@ body.no-scroll {
   }
 }
 
+
+
 /* Force + / – to figma grey whether text or SVG */
 .face-profile-main .fcp-top .faces .face-images .face-tile .tile-zoom-part,
 .face-profile-main .fcp-top .faces .face-images .face-tile .tile-zoom-part svg,
@@ -1385,3 +1392,15 @@ body.no-scroll {
     right: 10px;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
