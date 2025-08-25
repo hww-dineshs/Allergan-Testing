@@ -481,7 +481,7 @@
 
 @media (min-width: 768px) {
   .face-profile-main .fcp-top .faces .face-images .face-image-text {
-    padding: 12px 2px 14px;
+    padding: 12px 2px 14px 6px;
   }
 }
 
