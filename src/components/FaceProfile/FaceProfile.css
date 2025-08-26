@@ -109,6 +109,24 @@
   z-index: 2;
 }
 
+/* 🔧 Adjust middle gap between left & right profile names */
+.face-profile-main .fcp-top .options .op-1,
+.face-profile-main .fcp-top .options .op-2,
+.face-profile-main .fcp-top .options .op-3 {
+  justify-content: flex-start;              /* stop space-between */
+  column-gap: clamp(40px, 5vw, 88px);     /* middle gap */
+}
+
+.face-profile-main .fcp-top .options .op-1-left,
+.face-profile-main .fcp-top .options .op-1-right,
+.face-profile-main .fcp-top .options .op-2-left,
+.face-profile-main .fcp-top .options .op-2-right,
+.face-profile-main .fcp-top .options .op-3-left,
+.face-profile-main .fcp-top .options .op-3-right {
+  flex: 1 1 46%;
+}
+
+
 .face-profile-main .fcp-top .options .op-1-left,
 .face-profile-main .fcp-top .options .op-1-right,
 .face-profile-main .fcp-top .options .op-2-left,
@@ -117,7 +135,7 @@
 .face-profile-main .fcp-top .options .op-3-right {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   flex: 1;
   color: white;
   border-bottom: 1px solid #00A3E0;
@@ -461,7 +479,8 @@
   font-size: 24px;
   font-style: normal;
   font-weight: 400;
-  line-height: 24px; /* 100% */
+  line-height: 24px;
+  /* 100% */
 }
 
 .face-profile-main .fcp-top .faces .face-images .face-image-text p:nth-child(3) {
@@ -470,8 +489,10 @@
   font-size: 12px !important;
   font-style: normal;
   font-weight: 400;
-  line-height: 16px; /* 133.333% */
+  line-height: 16px;
+  /* 133.333% */
 }
+
 /* Responsive caption font sizes */
 @media (min-width: 480px) {
   .face-profile-main .fcp-top .faces .face-images .face-image-text p {
@@ -1400,7 +1421,14 @@ body.no-scroll {
 
 
 
+/* Profile Names (Anne, Olivia… in hamburger + profile bar) */
+.face-profile-main .fcp-top .options [class*="op-"] h1,
+.face-profile-main .fcp-top .header-2 .header-2-left h1 {
+  font-family: "Founders Grotesk", sans-serif !important;
+}
 
-
-
-
+/* Profile Age (e.g. age 42 in hamburger + profile bar) */
+.face-profile-main .fcp-top .options [class*="op-"] .age,
+.face-profile-main .fcp-top .header-2 .header-2-left .age {
+  font-family: "Founders Grotesk", sans-serif !important;
+}
