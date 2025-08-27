@@ -571,6 +571,12 @@ const JUV_CAPTIONS = [
 //     right: { l1: '3 months after',   l2: 'HArmonyCa\u2122',  l3: '4 months after',               l4: 'JUV\u00C9DERM<sup>®</sup>' },
 //   },
 // };
+// Override ONLY the right-side caption image for JUV-first profiles
+const RIGHT_CAPTION_OVERRIDE = {
+  Katerina: A('texts/caption-juv-right-alt.svg'),
+  Sonya:    A('texts/caption-juv-right-alt.svg'),
+  Sunny:    A('texts/caption-juv-right-alt.svg'),
+};
 
 // Static caption sets by profile group
 const CAPTION_SETS = {
@@ -591,7 +597,7 @@ const GROUP_HCA_JUVE = new Set(['Katerina', 'Sonya', 'Sunny']);
 // bump ™ / ® size a touch inside captions & disclaimers
 document.head.insertAdjacentHTML(
   'beforeend',
-  '<style>.face-image-text sup, .disclaimer sup{font-size:.9em;line-height:0;}</style>'
+  '<style>.face-image-text sup, .disclaimer sup{font-size:.55em;line-height:0;}</style>'
 );
 
 document.head.insertAdjacentHTML(
@@ -1528,24 +1534,19 @@ function renderDisclaimer(name) {
   }
 
   // paragraph-1 rules, profile-specific
-  function applyBreaksFirstPara(html) {
-    if (HCA_PROFILES.has(name)) {
-      // example rule left commented out
-    }
-    if (JUV_PROFILES.has(name)) {
-      // A) put the break AFTER the period of the first sentence
-      html = html.replace(
-        new RegExp(String.raw`(1 month after ${JUV_TOKEN} treatment\.)\s+(The second)`, 'i'),
-        '$1<br>$2'
-      );
-      // B) split second sentence before “and immediately …”
-      html = html.replace(
-        new RegExp(String.raw`(1 month after ${JUV_TOKEN} treatment)\s+and`, 'i'),
-        '$1and'
-      );
-    }
-    return html;
+function applyBreaksFirstPara(html) {
+  // No manual <br> anywhere — let the browser wrap naturally
+  if (JUV_PROFILES.has(name)) {
+    const JUV_TOKEN = String.raw`JUV(?:\u00C9|É)DERM(?:®|<sup>®<\/sup>)`;
+    // Fix the missing space: "...treatmentand..." -> "...treatment and..."
+    html = html.replace(
+      new RegExp(String.raw`(1 month after ${JUV_TOKEN} treatment)\s*and`, 'i'),
+      '$1 and'
+    );
   }
+  return html;
+}
+
 
   // paragraph-4 rule (optional)
   const CHEEKS = new RegExp(String.raw`(${JUV_TOKEN}\s+in the cheeks,)`, 'i');
@@ -1679,7 +1680,9 @@ function updateVideoCaptions(personName) {
 
   if (set) {
     imgLeft.src = set.before; imgLeft.alt = 'Before caption';
-    imgRight.src = set.after; imgRight.alt = 'After caption';
+    const rightSrc = RIGHT_CAPTION_OVERRIDE[personName] || set.after;
+    imgRight.src = rightSrc; imgRight.alt = 'After caption';
+
     imgLeft.style.display = 'block';
     imgRight.style.display = 'block';
   } else {
