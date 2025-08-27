@@ -28,8 +28,6 @@
   height: 100%;
   width: 100%;
   background-color: #F6F6F6;
-  max-width: 1440px;
-  margin: 0 auto;
   /* max-width: 1200px;  Added to center content like in Figma */
   /* margin: 0 auto;   /* Added to center content like in Figma */
 }
@@ -75,7 +73,7 @@
   align-items: center;
   flex-direction: column;
   background: #00174D;
-  gap: 10px;
+  gap: 20px;
   min-height: 250px;
   border: 1px solid black;
 }
@@ -105,27 +103,9 @@
   justify-content: space-between;
   width: 100%;
   max-width: 600px;
-  gap: 10px;
+  gap: 30px;
   z-index: 2;
 }
-
-/* 🔧 Adjust middle gap between left & right profile names */
-.face-profile-main .fcp-top .options .op-1,
-.face-profile-main .fcp-top .options .op-2,
-.face-profile-main .fcp-top .options .op-3 {
-  justify-content: flex-start;              /* stop space-between */
-  column-gap: clamp(40px, 5vw, 88px);     /* middle gap */
-}
-
-.face-profile-main .fcp-top .options .op-1-left,
-.face-profile-main .fcp-top .options .op-1-right,
-.face-profile-main .fcp-top .options .op-2-left,
-.face-profile-main .fcp-top .options .op-2-right,
-.face-profile-main .fcp-top .options .op-3-left,
-.face-profile-main .fcp-top .options .op-3-right {
-  flex: 1 1 46%;
-}
-
 
 .face-profile-main .fcp-top .options .op-1-left,
 .face-profile-main .fcp-top .options .op-1-right,
@@ -135,7 +115,7 @@
 .face-profile-main .fcp-top .options .op-3-right {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   flex: 1;
   color: white;
   border-bottom: 1px solid #00A3E0;
@@ -251,10 +231,7 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  /* border: 1px solid #F6F6F6; */
-  max-width: 1440px;
-  margin: 0 auto;
-  width: 100%;
+  border: 1px solid #F6F6F6;
 }
 
 /* icons row */
@@ -268,7 +245,7 @@
 
 @media (min-width: 320px) {
   .face-profile-main .fcp-top .faces .face-icons {
-    gap: 10px;
+    gap: 5px;
   }
 }
 
@@ -307,7 +284,7 @@
 /* grid wrapper - Default: 4 columns */
 .face-profile-main .fcp-top .faces .face-images {
   display: grid;
-  /* width: 80%; */
+  width: 80%;
   grid-template-columns: repeat(4, 1fr);
   justify-content: center;
   /* center the grid when there's extra space */
@@ -315,24 +292,21 @@
   /* Changed from start to stretch for vertical alignment */
   margin-top: 20px;
   margin-bottom: 20px;
-  width: calc(100% - 20.95%);
 }
 
 /* Large tablets/small desktop - 3 columns */
 @media (max-width: 1024px) {
   .face-profile-main .fcp-top .faces .face-images {
-    /* grid-template-columns: repeat(4, 1fr) !important; */
-    grid-template-columns: repeat(4, 1fr);
-    /* width: 85%; */
+    grid-template-columns: repeat(4, 1fr) !important;
+    width: 85%;
   }
 }
 
 /* Small tablets - 2 columns */
 @media (max-width: 768px) {
   .face-profile-main .fcp-top .faces .face-images {
-    /* grid-template-columns: repeat(4, 1fr) !important; */
-    grid-template-columns: repeat(4, 1fr);
-    /* width: 90% !important; */
+    grid-template-columns: repeat(4, 1fr) !important;
+    width: 90% !important;
   }
 }
 
@@ -340,16 +314,16 @@
 @media (max-width: 480px) {
   .face-profile-main .fcp-top .faces .face-images {
     grid-template-columns: 1fr !important;
-    /* width: 80% !important; */
+    width: 80% !important;
   }
 }
 
 /* Tablet portrait - 3 columns */
 @media (min-width: 768px) and (max-width: 1368px) and (orientation: portrait) {
   .face-profile-main .fcp-top .faces .face-images {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr);  
     align-items: stretch;
-    /* width: 90%; */
+    width: 90%;
     /* 3 columns in tablet portrait */
   }
 }
@@ -358,7 +332,7 @@
 @media (min-width: 600px) and (max-width: 767px) and (orientation: portrait) {
   .face-profile-main .fcp-top .faces .face-images {
     grid-template-columns: repeat(2, 1fr);
-    /* width: 90%; */
+    width: 90%;
   }
 }
 
@@ -375,8 +349,6 @@
   /* Ensure tiles fill available height */
 }
 
-
-
 .face-profile-main .fcp-top .faces .face-images .face-tile .face-img-container {
   overflow: hidden;
   border: 1px solid #E3E1E1;
@@ -384,8 +356,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 200 / 267;
-
 }
 
 /* the image itself */
@@ -395,62 +365,54 @@
   /* max-width: 290px; */
   width: 100%;
   height: 100%;
-  /* min-height: 280px; */
+  min-height: 280px;
   object-fit: cover;
   transform-origin: center center;
   transition: transform 0.15s ease;
   z-index: 1;
   position: relative;
   border: 1px solid #E3E1E1;
-  aspect-ratio: 200/267;
-
 }
 
 /* Responsive image heights */
 @media (max-width: 480px) {
-
   /* 1 column - larger images */
   .face-profile-main .fcp-top .faces .face-images img.faces-images {
-    /* min-height: 240px;
-    max-height: 400px; */
+    min-height: 240px;
+    max-height: 400px;
   }
 }
 
 /* 📱 Tablet/Mobile Portrait (481px–768px) */
 @media (min-width: 481px) and (max-width: 768px) and (orientation: portrait) {
   .face-profile-main .fcp-top .faces .face-images img.faces-images {
-    /* min-height: 240px; /* slightly taller for portrait */
-    /* max-height: 340px; */
+    min-height: 240px; /* slightly taller for portrait */
+    max-height: 340px;
   }
 }
 
 /* 📱 Tablet/Mobile Landscape (481px–768px) */
 @media (min-width: 481px) and (max-width: 768px) and (orientation: landscape) {
   .face-profile-main .fcp-top .faces .face-images img.faces-images {
-    min-height: 200px;
-    /* a bit shorter for landscape */
+    min-height: 200px; /* a bit shorter for landscape */
     max-height: 280px;
   }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
-
   /* 3 columns - smaller images */
   .face-profile-main .fcp-top .faces .face-images img.faces-images {
-    /* min-height: 260px;
-    max-height: 260px; */
+    min-height: 260px;
+    max-height: 260px;
   }
 }
 
 
 @media (min-width: 1025px) {
-
   /* 4 columns - smallest images */
   .face-profile-main .fcp-top .faces .face-images img.faces-images {
-    /* min-height: 300px;
-    max-height: 300px; */
-    object-fit: cover;
-
+    min-height: 300px;
+    max-height: 300px;
   }
 }
 
@@ -463,46 +425,38 @@
   z-index: 5;
   background: #fff;
   /* padding: 12px 16px 14px; */
-  /* width: 90%; */
-  margin: 0;
+  width: 90%;
+  margin: auto;
   flex-shrink: 0;
-  /* font-size: 20px; */
   /* Prevent caption from shrinking */
 }
 
 /* Tile captions under the four images — match Figma */
-/* First and second lines */
-.face-profile-main .fcp-top .faces .face-images .face-image-text p:nth-child(1),
-.face-profile-main .fcp-top .faces .face-images .face-image-text p:nth-child(2) {
-  color: #000;
-  font-family: "Founders Grotesk", sans-serif;
-  font-size: 24px;
-  font-style: normal;
+.face-profile-main .fcp-top .faces .face-images .face-image-text p {
+  font-family: "Bricolage Grotesque", "Open Sans", system-ui, sans-serif;
   font-weight: 400;
-  line-height: 24px;
-  /* 100% */
-}
-
-.face-profile-main .fcp-top .faces .face-images .face-image-text p:nth-child(3) {
-  color: #000;
-  font-family: "Founders Grotesk", sans-serif;
-  font-size: 12px !important;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 16px;
-  /* 133.333% */
+  /* Regular */
+    font-size: clamp(12px, 1vw, 14px) !important;
+  /* Mobile default */
+  line-height: normal;
+  /* Figma "Auto" */
+  letter-spacing: -0.04em;
+  /* Figma -4% */
+  color: #071D49;
+  /* Figma fill */
+  text-align: left;
 }
 
 /* Responsive caption font sizes */
 @media (min-width: 480px) {
   .face-profile-main .fcp-top .faces .face-images .face-image-text p {
-    font-size: 20px !important;
+    font-size: 16px;
   }
 }
 
 @media (min-width: 768px) {
   .face-profile-main .fcp-top .faces .face-images .face-image-text {
-    padding: 12px 2px 14px 6px;
+    padding: 12px 2px 14px;
   }
 }
 
@@ -537,7 +491,7 @@
   background: #F6EBDD;
   position: absolute;
   left: 50%;
-  bottom: 110px;
+  bottom: 90px;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
@@ -555,13 +509,13 @@
 /* Adjust zoom pill position for different screen sizes */
 @media (min-width: 480px) {
   .face-profile-main .fcp-top .faces .face-images .face-tile .tile-zoom-pill {
-    bottom: 110px;
+    bottom: 90px;
   }
 }
 
 @media (min-width: 768px) {
   .face-profile-main .fcp-top .faces .face-images .face-tile .tile-zoom-pill {
-    bottom: 110px;
+    bottom: 90px;
   }
 }
 
@@ -611,19 +565,18 @@ body.no-scroll {
 */
 .face-profile-main .face-test {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   /* Allow test blocks to stack on smaller screens */
   justify-content: center;
   align-items: center;
   align-items: flex-start;
-  gap: 10px;
-  width: calc(100% - 20.95%);
+  gap: 15px;
+  width: 85%;
   margin: 2rem auto;
   background-color: #F6F6F6;
 }
 
 @media (max-width: 480px) {
-
   /* 1 column - larger images */
   .face-profile-main .face-test {
     flex-direction: column;
@@ -654,7 +607,6 @@ body.no-scroll {
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
-
   /* 3 columns - smaller images */
   .face-profile-main .face-test {
     flex-direction: row;
@@ -666,9 +618,8 @@ body.no-scroll {
 
 
 @media (min-width: 1025px) {
-
   /* 4 columns - smallest images */
-  .face-profile-main .face-test {
+ .face-profile-main .face-test {
     flex-direction: row;
     /* Stack test blocks on smaller screens */
     justify-content: center;
@@ -716,15 +667,7 @@ body.no-scroll {
   font-size: clamp(20px, 3vw, 30px);
   margin-bottom: 10px;
   text-align: start;
-
 }
-
-/* .vt-img h2 {
-
-   width: calc(100% - 20.95%);
-  margin: 0 auto;
-
-} */
 
 
 .face-profile-main .test-image-wrapper {
@@ -733,17 +676,16 @@ body.no-scroll {
   max-width: 570px;
   width: 100%;
   /* height: 300px; */
-  /* height: 450px; */
+  height: 450px;
   background-color: white;
   cursor: ew-resize;
   user-select: none;
   transition: opacity 0.3s ease;
-  aspect-ratio: 10/9;
 }
 
 @media screen and (max-width: 768px) {
   .face-profile-main .test-image-wrapper {
-    /* height: 350px !important; */
+    height: 350px !important;
 
   }
 }
@@ -831,7 +773,7 @@ body.no-scroll {
 .face-profile-main .video-test {
   display: flex;
   flex-direction: column;
-  padding: 30px 0;
+  padding: 30px;
   justify-content: center;
   align-items: center;
   text-align: left;
@@ -841,14 +783,10 @@ body.no-scroll {
 
 .video-test .vt-content-container {
   display: flex;
-  gap: 10px;
-  /* width: calc(100% - 20.95%);
-  margin: 0 auto; */
-
+  gap: 16px;
 }
 
 @media (max-width: 480px) {
-
   /* 1 column - larger images */
   .video-test .vt-content-container {
     flex-direction: column;
@@ -876,7 +814,6 @@ body.no-scroll {
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
-
   /* 3 columns - smaller images */
   .video-test .vt-content-container {
     flex-direction: row;
@@ -887,7 +824,6 @@ body.no-scroll {
 
 
 @media (min-width: 1025px) {
-
   /* 4 columns - smallest images */
   .video-test .vt-content-container {
     flex-direction: row;
@@ -899,8 +835,6 @@ body.no-scroll {
 .face-profile-main .video-test .vt-img {
   /* display: flex; */
   gap: 10px;
-  width: calc(100% - 20.95%);
-  margin: 0 auto;
 }
 
 /* Video title — match Smile/Pinch */
@@ -958,20 +892,19 @@ body.no-scroll {
   display: block;
   display: flex;
   object-fit: cover;
-  /* height: 400px; */
-  aspect-ratio: 10/9;
+  height: 400px;
 }
 
 @media screen and (max-width: 768px) {
   .video-test video {
-    /* height: 300px; */
+    height: 300px;
 
   }
 }
 
 @media screen and (max-width: 300px) {
   .video-test video {
-    /* height: 250px !important; */
+    height: 250px !important;
   }
 }
 
@@ -1008,7 +941,7 @@ body.no-scroll {
   background-color: #F6F6F6;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 20px;
   font-size: 15px;
   line-height: 1.6;
   /* text-align reverted to default (left-aligned) to match Figma */
@@ -1072,8 +1005,6 @@ body.no-scroll {
   }
 }
 
-
-
 /* Force + / – to figma grey whether text or SVG */
 .face-profile-main .fcp-top .faces .face-images .face-tile .tile-zoom-part,
 .face-profile-main .fcp-top .faces .face-images .face-tile .tile-zoom-part svg,
@@ -1103,7 +1034,7 @@ body.no-scroll {
 
   /* bigger icons for touch */
   .face-profile-main .fcp-top .faces .face-icons {
-    gap: 10px;
+    gap: 12px;
     margin-top: 16px;
   }
 
@@ -1114,17 +1045,16 @@ body.no-scroll {
 
   /* 3 tiles in portrait tablets */
   .face-profile-main .fcp-top .faces .face-images {
-    /* grid-template-columns: repeat(4, 1fr); */
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     align-items: stretch;
     margin-top: 16px;
-    /* width: 90%; */
+    width: 90%;
     /* gap: 10px; */
   }
 
   .face-profile-main .fcp-top .faces .face-images img.faces-images {
-    /* height: 100%;
-    min-height: 180px; */
+    height: 100%;
+    min-height: 180px;
   }
 
   .face-profile-main .fcp-top .faces .face-images .face-image-text p {
@@ -1133,8 +1063,8 @@ body.no-scroll {
 
   /* tests smaller */
   .face-profile-main .face-test {
-    gap: 10px;
-    padding: 20px 0px;
+    gap: 15px;
+    padding: 20px 16px;
   }
 
   .face-profile-main .test-image-wrapper {
@@ -1155,7 +1085,7 @@ body.no-scroll {
 
   .face-profile-main .video-test .vt-img video {
     width: 100%;
-    /* max-width: 560px; */
+    max-width: 560px;
   }
 }
 
@@ -1169,7 +1099,7 @@ body.no-scroll {
   .face-profile-main .fcp-top .faces .face-images {
     grid-template-columns: repeat(4, 1fr);
     align-items: stretch;
-    /* width: 85%; */
+    width: 85%;
     /* gap: 5px; */
     /* 4 tiles in landscape tablets */
   }
@@ -1181,7 +1111,7 @@ body.no-scroll {
 
   .face-profile-main .test-image-wrapper {
     /* width: 600px; */
-    /* height: 360px !important; */
+    height: 360px !important;
   }
 
   .face-profile-main .slider-thumb {
@@ -1192,7 +1122,11 @@ body.no-scroll {
   .face-profile-main .video-test .vt-img {
     flex-direction: row;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
+  }
+
+  .face-profile-main .video-test .vt-img video {
+    /* width: 520px; */
   }
 }
 
@@ -1412,23 +1346,4 @@ body.no-scroll {
   .img-modal-next {
     right: 10px;
   }
-}
-
-
-
-
-
-
-
-
-/* Profile Names (Anne, Olivia… in hamburger + profile bar) */
-.face-profile-main .fcp-top .options [class*="op-"] h1,
-.face-profile-main .fcp-top .header-2 .header-2-left h1 {
-  font-family: "Founders Grotesk", sans-serif !important;
-}
-
-/* Profile Age (e.g. age 42 in hamburger + profile bar) */
-.face-profile-main .fcp-top .options [class*="op-"] .age,
-.face-profile-main .fcp-top .header-2 .header-2-left .age {
-  font-family: "Founders Grotesk", sans-serif !important;
 }

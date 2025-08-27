@@ -571,12 +571,6 @@ const JUV_CAPTIONS = [
 //     right: { l1: '3 months after',   l2: 'HArmonyCa\u2122',  l3: '4 months after',               l4: 'JUV\u00C9DERM<sup>®</sup>' },
 //   },
 // };
-// Override ONLY the right-side caption image for JUV-first profiles
-const RIGHT_CAPTION_OVERRIDE = {
-  Katerina: A('texts/caption-juv-right-alt.svg'),
-  Sonya:    A('texts/caption-juv-right-alt.svg'),
-  Sunny:    A('texts/caption-juv-right-alt.svg'),
-};
 
 // Static caption sets by profile group
 const CAPTION_SETS = {
@@ -597,7 +591,7 @@ const GROUP_HCA_JUVE = new Set(['Katerina', 'Sonya', 'Sunny']);
 // bump ™ / ® size a touch inside captions & disclaimers
 document.head.insertAdjacentHTML(
   'beforeend',
-  '<style>.face-image-text sup, .disclaimer sup{font-size:.55em;line-height:0;}</style>'
+  '<style>.face-image-text sup, .disclaimer sup{font-size:.9em;line-height:0;}</style>'
 );
 
 document.head.insertAdjacentHTML(
@@ -1546,8 +1540,8 @@ function renderDisclaimer(name) {
       );
       // B) split second sentence before “and immediately …”
       html = html.replace(
-        new RegExp(String.raw`(1 month after ${JUV_TOKEN} treatment)\s*and`, 'i'),
-        '$1 and'
+        new RegExp(String.raw`(1 month after ${JUV_TOKEN} treatment)\s+and`, 'i'),
+        '$1and'
       );
     }
     return html;
@@ -1685,9 +1679,7 @@ function updateVideoCaptions(personName) {
 
   if (set) {
     imgLeft.src = set.before; imgLeft.alt = 'Before caption';
-    const rightSrc = RIGHT_CAPTION_OVERRIDE[personName] || set.after;
-    imgRight.src = rightSrc; imgRight.alt = 'After caption';
-
+    imgRight.src = set.after; imgRight.alt = 'After caption';
     imgLeft.style.display = 'block';
     imgRight.style.display = 'block';
   } else {
