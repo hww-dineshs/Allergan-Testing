@@ -49,7 +49,33 @@
   flex-direction: column;
   background-color: white;
 }
-
+.face-profile-main .top-des{
+  padding: 20px;
+  width: 90%;
+  margin: auto;
+  background-color: #F6F6F6;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.face-profile-main .top-des p{
+  font-family: "Bricolage Grotesque", "Open Sans", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: 0;
+  color: #7D7C7C;
+  margin: 0;
+}
+.face-profile-main .top-des p a{
+  color: #071D49;
+}
+.face-profile-main .top-des sup {
+    font-size: .9em;
+    line-height: 0;
+}
 /* header-1 */
 .face-profile-main .fcp-top .header-1 {
   display: flex;
@@ -1003,7 +1029,7 @@ body.no-scroll {
 /* } */
 
 /* new changes */
-.face-profile-main .disclaimer {
+.face-profile-main .disclaimer{
   padding: 20px;
   width: 80%;
   margin: auto;
@@ -1015,7 +1041,17 @@ body.no-scroll {
   line-height: 1.6;
   /* text-align reverted to default (left-aligned) to match Figma */
 }
-
+.face-profile-main .reference,.face-profile-main .approval {
+  color: #7D7C7C;
+  margin: 0;
+  font-family: "Bricolage Grotesque", "Open Sans", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  /* or: inherit */
+  line-height: 1.6;
+  /* or: inherit */
+  letter-spacing: 0;
+}
 .face-profile-main .disclaimer h1 {
   padding-top: 20px;
   color: #7D7C7C;
@@ -1029,12 +1065,14 @@ body.no-scroll {
   padding: 10px 0;
 }
 
-.face-profile-main .disclaimer .disclaimer-text p {
+.face-profile-main .disclaimer .disclaimer-text p,.face-profile-main .reference p,.face-profile-main .approval p{
   color: #7D7C7C;
   margin: 0;
   /* margin-left: 240px; */
 }
-
+.face-profile-main .reference span,.face-profile-main .approval span{
+  font-weight: bold;
+}
 /* Override type just for disclaimer copy */
 .face-profile-main .disclaimer .disclaimer-body,
 .face-profile-main .disclaimer .disclaimer-body p {
