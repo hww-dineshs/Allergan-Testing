@@ -36,7 +36,7 @@
 
 /* Superscript sizing for marks like ® and ™ */
 .face-profile-main sup {
-  font-size: 0.6em;
+  font-size: 70%;
   vertical-align: super;
   line-height: 0;
 }
@@ -72,10 +72,10 @@
 .face-profile-main .top-des p a{
   color: #071D49;
 }
-.face-profile-main .top-des sup {
+/* .face-profile-main .top-des sup {
     font-size: .9em;
     line-height: 0;
-}
+} */
 /* header-1 */
 .face-profile-main .fcp-top .header-1 {
   display: flex;
@@ -1092,10 +1092,10 @@ body.no-scroll {
   letter-spacing: 0;
 }
 
-.face-profile-main .disclaimer sup {
+/* .face-profile-main .disclaimer sup {
   font-size: .9em;
   line-height: 0;
-}
+} */
 
 
 .face-profile-main .disclaimer .disclaimer-text:last-child {
