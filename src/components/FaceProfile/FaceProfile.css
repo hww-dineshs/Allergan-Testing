@@ -1069,6 +1069,13 @@ body.no-scroll {
   color: #7D7C7C;
   margin: 0;
   /* margin-left: 240px; */
+  font-family: "Bricolage Grotesque", "Open Sans", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  /* or: inherit */
+  line-height: 1.6;
+  /* or: inherit */
+  letter-spacing: 0;
 }
 .face-profile-main .reference span,.face-profile-main .approval span{
   font-weight: bold;
