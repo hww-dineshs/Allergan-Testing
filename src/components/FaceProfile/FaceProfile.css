@@ -271,6 +271,166 @@
   cursor: pointer;
 }
 
+
+/* =======================
+   Top new section
+   ======================= */
+.face-profile-main .lookbook-hero {
+  background:url("../../assets/images/Asset1.png");
+  /* background: linear-gradient(to bottom, #fce0d7 0%,#fffbfb 100%); */
+  min-height: 100vh;
+  font-family: "Founders Grotesk", sans-serif;
+  color: #142a63;
+  background-size: 100%;
+  background-repeat: no-repeat;
+}
+
+.face-profile-main .top-note {
+  background: #112b67;
+  color: #fff;
+  font-size: 16px;
+  padding: 19px 47px 14px;
+  text-align: left;
+  line-height: 18px;
+}
+.face-profile-main .brand-des{
+  border: 1px solid #071d49;
+  padding: 20px;
+}
+.face-profile-main .brand-des p{
+  color: #071d49;
+}
+
+.face-profile-main .lookbook-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+  padding: 40px 48px 0px;
+  
+}
+.face-profile-main .hero-left{
+  flex: 1;
+}
+.face-profile-main .hero-left h1 {
+  font-size: 72px;
+  line-height: 1.05;
+  font-weight: 400;
+  margin-top: 60px;
+}
+
+.face-profile-main .brand-logo {
+  margin-top: 25px;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.face-profile-main .brand-logo img{
+  position: relative;
+  width: 43%;
+  left: 56px;
+  top: 10px;
+  height: 99px;
+}
+.face-profile-main .brand-logo-txt {
+  margin-top: 25px;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.face-profile-main .brand-logo-txt img{
+  position: relative;
+  width: 81%;
+  left: 56px;
+  top: 19px;
+}
+
+.face-profile-main .hero-middle {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  flex: 1;
+  position: relative;
+  top: -34px;
+  left: 26px;
+  align-content: flex-start;
+}
+
+.face-profile-main .portrait-card {
+  display: block;
+  overflow: hidden;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  width: 31%;
+  height: fit-content;
+}
+
+.face-profile-main .portrait-card img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  position: relative;
+}
+
+.face-profile-main .portrait-card:hover {
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+}
+
+.face-profile-main .offset-top2 {
+  margin-top: 36px;
+  margin-left: 0px;
+}
+
+.face-profile-main .offset-top3 {
+  margin-top: 67px;
+  margin-left: 0px;
+}
+.face-profile-main .offset-top4 {
+  margin-top: -68px;
+}
+.face-profile-main .offset-top5 {
+  margin-top: -30px;
+  margin-left: 0px;
+}
+.face-profile-main .offset-top6 {
+  margin-top: 0px;
+  margin-left: 0px;
+}
+.face-profile-main .hero-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+  padding-top: 120px;
+  flex: .4;
+}
+
+.face-profile-main .legal-copy {
+  font-size: 14px;
+  line-height: 1.6;
+  
+}
+.face-profile-main .legal-copy p{
+  color: #071d49;
+}
+.face-profile-main .legal-copy p + p {
+  margin-top: 24px;
+  color:#071d49;
+}
+
+.face-profile-main .company-logo {
+  font-size: 32px;
+  line-height: 1.1;
+  margin-top: 60px;
+}
+
+.face-profile-main .doc-id {
+  margin-top: 40px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 /* =======================
    FACES + GRID
    ======================= */
