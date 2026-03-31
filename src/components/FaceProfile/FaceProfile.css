@@ -307,6 +307,9 @@
   font-family: "Founders Grotesk", sans-serif;
   letter-spacing: -0.1px;
 }
+ .face-profile-main .brand-des p a{
+    color: #071d49 !important;
+  }
 .face-profile-main .brand-des .desc-head{
   font-weight: bold;
   margin-bottom: -3px;
@@ -427,7 +430,7 @@
   margin-top: -67px;
 }
 .face-profile-main .offset-top2 p,.face-profile-main .offset-top4 p{
-  left: -8%;
+  left: -10%;
 }
 .face-profile-main .offset-top5 {
   margin-top: -31px;
@@ -504,6 +507,7 @@
     padding: 20px 0px;
     margin-bottom: 0px;
   }
+ 
   .face-profile-main .portrait-card{
     width: auto;
   }
