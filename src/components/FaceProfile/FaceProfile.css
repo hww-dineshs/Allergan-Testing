@@ -308,7 +308,7 @@
   letter-spacing: -0.1px;
 }
 .face-profile-main .brand-des .desc-head{
-  font-weight: 500;
+  font-weight: bold;
   margin-bottom: -3px;
 }
 .face-profile-main .lookbook-grid {
@@ -393,13 +393,13 @@
 .face-profile-main .portrait-card p{
   color: #071d49;
   font-family: "Founders Grotesk", sans-serif;
-  font-size: 21px;
+  font-size: 20px;
   line-height: 1.1;
   position: absolute;
     bottom: 22%;
     z-index: 1;
     transform: rotate(270deg);
-    left: -2%;
+    left: -4%;
 }
 .face-profile-main .portrait-card img {
   width: 100%;
@@ -457,7 +457,7 @@
   font-size: 10.5px;
   line-height: 12.5px;
   font-family: "Founders Grotesk", sans-serif;
-  font-weight: 500;
+  font-weight: bold;
 }
 .face-profile-main .legal-copy p + p {
   color:#071d49;
@@ -517,7 +517,7 @@
     margin-top: 10px;
   }
   .face-profile-main .portrait-card p{
-    left: 2%;
+    left: -12%;
   }
   .face-profile-main .offset-top2 p,.face-profile-main .offset-top4 p{
   left: 0%;
