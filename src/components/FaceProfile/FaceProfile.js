@@ -1821,6 +1821,9 @@ el.topSec.addEventListener('click', (e) => {
   const idx = PROFILES.findIndex((p) => p.name === person);
   if (idx !== -1) selectedIndex = idx;
   changeImages(person, 'center');
+  el.header2.scrollIntoView({
+    behavior: 'smooth'
+  });
 });
 
 
