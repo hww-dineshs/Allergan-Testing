@@ -653,6 +653,7 @@ let panning = { active: false, startX: 0, startY: 0, originX: 0, originY: 0 };
 const el = {
   burger: document.querySelector('.hamberger-icon'),
   options: document.querySelector('.options'),
+  topSec: document.querySelector('.lookbook-grid'),
   header2: document.querySelector('.header-2'),
   selectedName: document.querySelector('.selected-name'),
   leftArrow: document.querySelector('.left-arrow'),
@@ -1811,6 +1812,18 @@ el.options.addEventListener('click', (e) => {
   if (idx !== -1) selectedIndex = idx;
   changeImages(person, 'center');
 });
+
+// --- topSec SELECT ---
+el.topSec.addEventListener('click', (e) => {
+  const img = e.target.closest('img[data-person]');
+  if (!img) return;
+  const person = img.getAttribute('data-person');
+  const idx = PROFILES.findIndex((p) => p.name === person);
+  if (idx !== -1) selectedIndex = idx;
+  changeImages(person, 'center');
+});
+
+
 
 // --- HEADER ARROWS ---
 function nextProfile() { selectedIndex = (selectedIndex + 1) % PROFILES.length; changeImages(PROFILES[selectedIndex].name, 'center'); }

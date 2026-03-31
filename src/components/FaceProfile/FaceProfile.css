@@ -271,6 +271,243 @@
   cursor: pointer;
 }
 
+
+/* =======================
+   Top new section
+   ======================= */
+.face-profile-main .lookbook-hero {
+  /* background:url("../../assets/images/Asset6.png"); */
+  background: linear-gradient(to bottom, #fce0d7 0%,#fffbfb 100%);
+  font-family: "Founders Grotesk", sans-serif;
+  color: #142a63;
+  /* background-size: 100%;
+  background-repeat: no-repeat; */
+}
+
+.face-profile-main .top-note {
+  background: #112b67;
+  color: #fff;
+  font-size: 15px;
+  padding: 19px 47px 14px;
+  text-align: left;
+  line-height: 1.1;
+}
+.face-profile-main .brand-des{
+  border: 1px solid #071d49;
+  padding: 15px;
+  margin-left: 11%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.face-profile-main .brand-des p{
+  color: #071d49;
+  font-size: 12px;
+  line-height: 1.1;
+  font-family: "Founders Grotesk", sans-serif;
+  letter-spacing: -0.1px;
+}
+.face-profile-main .brand-des .desc-head{
+  font-weight: 500;
+  margin-bottom: -3px;
+}
+.face-profile-main .lookbook-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 1%;
+  padding: 2.6% 3.4% 2%;
+  
+}
+.face-profile-main .hero-left{
+  flex: 1;
+}
+.face-profile-main .hero-left h1 {
+  font-size: 72px;
+  line-height: 1.05;
+  font-weight: 400;
+  margin-top: 60px;
+}
+
+.face-profile-main .brand-logo {
+  margin-top: 6%;
+  margin-bottom: 2%;
+  position: relative;
+}
+
+.face-profile-main .brand-logo img{
+  position: relative;
+  width: 42%;
+  left: 10%;
+}
+.face-profile-main .brand-logo-txt {
+  margin-top: 7%;
+  margin-bottom: 4%;
+  position: relative;
+}
+
+.face-profile-main .brand-logo-txt img{
+  position: relative;
+  width: 79%;
+  left: 10%;
+}
+
+.face-profile-main .hero-middle {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  flex: 1;
+  position: relative;
+  margin-top: -2%;
+  left: 33px;
+  align-content: flex-start;
+}
+.face-profile-main .hero-middle .design-cut-faces{
+  position: absolute;
+  right: 55px;
+  display: flex;
+  top: -112px;
+}
+.face-profile-main .hero-middle .design-cut-faces > div{
+  width:50%;
+} 
+
+.face-profile-main .hero-middle .design-cut-faces img{
+  max-width: 165px;
+}
+.face-profile-main .hero-middle .design-cut-faces .half-cut-01{
+  position: relative;
+  top: 0px
+}
+.face-profile-main .portrait-card {
+  display: block;
+  overflow: hidden;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  width: 30%;
+  height: fit-content;
+}
+
+.face-profile-main .portrait-card img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  position: relative;
+  max-width: 165px;
+  cursor: pointer;
+}
+
+.face-profile-main .portrait-card:hover {
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+}
+
+.face-profile-main .offset-top2 {
+  margin-top: 36px;
+  margin-left: 0px;
+}
+
+.face-profile-main .offset-top3 {
+  margin-top: 67px;
+  margin-left: 0px;
+}
+.face-profile-main .offset-top4 {
+  margin-top: -67px;
+}
+.face-profile-main .offset-top5 {
+  margin-top: -31px;
+  margin-left: 0px;
+}
+.face-profile-main .offset-top6 {
+  margin-top: 0px;
+  margin-left: 0px;
+}
+.face-profile-main .hero-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  flex: .4;
+  margin-bottom: 4.4%;
+  gap: 6%;
+}
+
+.face-profile-main .legal-copy {
+  font-size: 10px;
+  line-height: 1.1;
+  padding: 0px 7% 0px 15.1%;
+  margin-bottom: 4%;
+}
+.face-profile-main .legal-copy p{
+  color: #071d49;
+  font-size: 10.5px;
+  line-height: 12.5px;
+  font-family: "Founders Grotesk", sans-serif;
+  font-weight: 500;
+}
+.face-profile-main .legal-copy p + p {
+  color:#071d49;
+  font-family: "Founders Grotesk", sans-serif;
+  margin-top: 8%;
+}
+
+.face-profile-main .company-logo {
+  padding-left: 15.1%;
+}
+.face-profile-main .company-logo img{
+  width: 90%;
+  max-width: 167px;
+}
+
+.face-profile-main .doc-id {
+  font-size: 10px;
+  font-weight: 600;
+  padding-left: 15.1%;
+  letter-spacing: 0.1px;
+}
+@media (max-width: 767px) {
+  .face-profile-main .lookbook-grid{
+    flex-direction: column;
+    width: 80%;
+    margin: 0 auto;
+  }
+  .face-profile-main .hero-middle{
+    margin-top: 20px;
+    justify-content: center;
+    left: 0;
+  }
+  .face-profile-main .brand-logo-txt{
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  .face-profile-main .brand-logo img,.face-profile-main .brand-logo-txt img{
+    left: 0px;
+  }
+  .face-profile-main .brand-des{
+    margin-left: 0px;
+  }
+  .face-profile-main .legal-copy{
+    padding: 20px 0px;
+    margin-bottom: 0px;
+  }
+  .face-profile-main .portrait-card{
+    width: auto;
+  }
+  .face-profile-main .company-logo,.face-profile-main .doc-id{
+    padding: 0px;
+  }
+  .face-profile-main .hero-right{
+    gap: 20px;
+  }
+  .face-profile-main .legal-copy p + p{
+    margin-top: 10px;
+  }
+
+}
+@media (max-width: 630px) {
+  .face-profile-main .portrait-card{
+    margin-top: 0px;
+  }
+}
 /* =======================
    FACES + GRID
    ======================= */
