@@ -303,7 +303,7 @@
 .face-profile-main .brand-des p{
   color: #071d49;
   font-size: 12px;
-  line-height: 1.1;
+  line-height: 1.2;
   font-family: "Founders Grotesk", sans-serif;
   letter-spacing: -0.1px;
 }
@@ -452,7 +452,7 @@
 .face-profile-main .legal-copy {
   font-size: 10px;
   line-height: 1.1;
-  padding: 0px 3% 0px 15.1%;
+  padding: 0px 0% 0px 15.1%;
   margin-bottom: 4%;
 }
 .face-profile-main .legal-copy p{
